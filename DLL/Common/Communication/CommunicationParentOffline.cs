@@ -48,6 +48,7 @@
 using System;
 using System.Threading;
 using Common.Configuration;
+using VcuComm;
 
 namespace Common.Communication
 {
@@ -255,6 +256,40 @@ namespace Common.Communication
             get { return m_CommunicationSetting; }
             set { m_CommunicationSetting = value; }
         }
+
+        /// <summary>
+        /// Gets the communication device used to communicate with the selected VCU. intentionally
+        /// return null since an actual communication device is not used when offline
+        /// </summary>
+        public ICommDevice CommDevice
+        {
+            get { return null; }
+        }
+
+        /// <summary>
+        /// TOOD
+        /// </summary>
+        public EventStreamMarshal EventStreamMarshall
+        {
+            get { return null; }
+        }
+
+        /// <summary>
+        /// TOOD
+        /// </summary>
+        public WatchClockMarshal WatchClockMarshall
+        {
+            get { return null; }
+        }
+
+        /// <summary>
+        /// TOOD
+        /// </summary>
+        public SelfTestMarshal SelfTestMarshall
+        {
+            get { return null; }
+        }
+
         #endregion --- Properties ---
     }
 }

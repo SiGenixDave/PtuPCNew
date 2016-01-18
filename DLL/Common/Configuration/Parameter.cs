@@ -600,21 +600,6 @@ namespace Common.Configuration
 			try
 			{
 				m_WatchSize = dataDictionary.CONFIGUREPTU[0].WatchSize;
-                short watchReturn = (short)CommunicationError.UnknownError;
-
-                // Inform the VcuCommunication32/VcuCommunication64 dynamic link library of the number of watch variables that are associated with the
-                // project.
-                CommunicationParent communicationInterface = new CommunicationParent();
-                watchReturn = communicationInterface.SetWatchSize(m_WatchSize);
-                communicationInterface = null;
-
-				if (watchReturn != m_WatchSize)
-				{
-					// Use the returned value.
-					m_WatchSize = watchReturn;
-
-                    MessageBox.Show(Resources.MBTWatchSizeInvalid, Resources.MBCaptionWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				}
 			}
 			catch (System.EntryPointNotFoundException)
 			{

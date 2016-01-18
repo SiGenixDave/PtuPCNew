@@ -1,4 +1,5 @@
 #region --- Revision History ---
+
 /*
  * 
  *  This document and its contents are the property of Bombardier Inc. or its subsidiaries and contains confidential, proprietary information.
@@ -18,6 +19,7 @@
  */
 
 #region - [1.0 to 1.12] -
+
 /*
  *  Date        Version Author          Comments
  *  09/02/10    1.0     K.McD           1.  First entry into TortoiseSVN.
@@ -71,9 +73,11 @@
  *  02/27/14    1.12    K.McD           1.  Minor correction to the <remarks> XML tag in the SetWatchElements() method.
  *                                      2.  Modified the call to PTUDLL32.GetChartIndex() in the GetChartConfiguration() method to match the 
  */
+
 #endregion - [1.0 to 1.12] -
 
 #region - [1.13] -
+
 /*
  *  03/11/15    1.13     K.McD          References
  *                                      1.  Upgrade the PTU software to extend the support for the R188 project as defined in purchase order
@@ -121,7 +125,9 @@
  *                                              throw new CommunicationException("<function-name>", errorCode);
  *                                          }                                         
  */
+
 #endregion - [1.13] -
+
 #endregion --- Revision History ---
 
 using System;
@@ -140,6 +146,7 @@ namespace Watch.Communication
     public class CommunicationWatch : CommunicationParent, ICommunicationWatch
     {
         #region --- Constructors ---
+
         /// <summary>
         /// Initialize a new instance of the class and set the function delegates, properties and member variables to those values associated with the
         /// specified communication interface.
@@ -150,9 +157,11 @@ namespace Watch.Communication
             : base(communicationInterface)
         {
         }
+
         #endregion --- Constructors ---
 
         #region --- Methods ---
+
         /// <summary>
         /// Write the specified data to the watch variable specified by the <paramref name="dictionaryIndex"/> parameter.
         /// </summary>
@@ -163,14 +172,13 @@ namespace Watch.Communication
         /// CommunicationError.Success.</exception>
         public void SendVariable(short dictionaryIndex, short dataType, double data)
         {
-            Debug.Assert(m_SendVariable != null, "CommunicationWatch.SendVariable() - [m_SendVariableDelegate != null]");
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationWatch.SendVariable() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
             try
             {
                 m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
-                errorCode = (CommunicationError)m_SendVariable(dictionaryIndex, dataType, data);
+                errorCode = (CommunicationError)m_WatchClockMarshal.SendVariable(dictionaryIndex, dataType, data);
             }
             catch (Exception)
             {
@@ -204,7 +212,6 @@ namespace Watch.Communication
         /// CommunicationError.Success.</exception>
         public void SetWatchElements(List<short> watchElementList)
         {
-            Debug.Assert(m_SetWatchElements != null, "CommunicationWatch.SetWatchElements() - [m_SetWatchElementDelegates != null]");
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationWatch.SetWatchElements() - [m_MutexCommuncationInterface != null]");
 
             // Skip, if the parameter isn't defined.
@@ -224,7 +231,7 @@ namespace Watch.Communication
             try
             {
                 m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
-                errorCode = (CommunicationError)m_SetWatchElements(watchElements);
+                errorCode = m_WatchClockMarshal.SetWatchElements(watchElements);
             }
             catch (Exception)
             {
@@ -247,7 +254,7 @@ namespace Watch.Communication
                 throw new CommunicationException(Resources.EMSetWatchElementsFailed, errorCode);
             }
 
-            // Keep a record up the new mapping beween the each element index and the watch identifier.
+            // Keep a record up the new mapping between the each element index and the watch identifier.
             for (short elementIndex = 0; elementIndex < Parameter.WatchSize; elementIndex++)
             {
                 m_WatchElements[elementIndex].WatchIdentifier = watchElements[elementIndex];
@@ -267,7 +274,6 @@ namespace Watch.Communication
         /// UpdateElements() method is not CommunicationError.Success.</exception>
         public WatchElement_t[] UpdateWatchElements(bool forceUpdate)
         {
-            Debug.Assert(m_UpdateWatchElements != null, "CommunicationWatch.UpdateWatchElements() - [m_UpdateWatchElementsDelegate != null]");
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationWatch.UpdateWatchElements() - [m_MutexCommuncationInterface != null]");
 
             WatchElement_t[] watchElements = new WatchElement_t[Parameter.WatchSize];
@@ -279,7 +285,7 @@ namespace Watch.Communication
             try
             {
                 m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
-                errorCode = (CommunicationError)m_UpdateWatchElements(forceUpdateAsShort, watchValues, watchDataTypes);
+                errorCode = (CommunicationError)m_WatchClockMarshal.UpdateWatchElements(forceUpdateAsShort, watchValues, watchDataTypes);
             }
             catch (Exception)
             {
@@ -347,7 +353,6 @@ namespace Watch.Communication
         /// CommunicationError.Success.</exception>
         public short[] GetChartConfiguration()
         {
-            Debug.Assert(m_GetChartIndex != null, "CommunicationWatch.GetChartConfiguration() - [m_GetChartIndexDelegate != null]");
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationWatch.GetChartConfiguration() - [m_MutexCommuncationInterface != null]");
 
             short[] watchIdentifiers = new short[Parameter.WatchSizeChartRecorder];
@@ -358,7 +363,7 @@ namespace Watch.Communication
                 try
                 {
                     m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
-                    errorCode = (CommunicationError)m_GetChartIndex(chartIndex, out watchIdentifiers[chartIndex]);
+                    errorCode = m_WatchClockMarshal.GetChartIndex(chartIndex, ref watchIdentifiers[chartIndex]);
                 }
                 catch (Exception)
                 {
@@ -393,7 +398,6 @@ namespace Watch.Communication
             Debug.Assert(watchIdentifiers != null, "CommunicationWatch.ConfigureChartRecorderChannels() - [watchIdentifiers != null]");
             Debug.Assert(watchIdentifiers.Length == Parameter.WatchSizeChartRecorder,
                          "CommunicationWatch.ConfigureChartRecorderChannels() - [watchIdentifiers.Length == Parameter.WatchSizeChartRecorder]");
-            Debug.Assert(m_SetChartIndex != null, "CommunicationWatch.ConfigureChartRecorderChannels() - [m_SetChartIndexDelegate != null]");
             Debug.Assert(m_MutexCommuncationInterface != null,
                          "CommunicationWatch.ConfigureChartRecorderChannels() - [m_MutexCommuncationInterface != null]");
 
@@ -404,7 +408,7 @@ namespace Watch.Communication
                 try
                 {
                     m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
-                    errorCode = (CommunicationError)m_SetChartIndex(channelIndex, watchIdentifiers[channelIndex]);
+                    errorCode = m_WatchClockMarshal.SetChartIndex(channelIndex, watchIdentifiers[channelIndex]);
                 }
                 catch (Exception)
                 {
@@ -426,6 +430,7 @@ namespace Watch.Communication
                 }
             }
         }
+
         #endregion --- Methods ---
     }
 }
