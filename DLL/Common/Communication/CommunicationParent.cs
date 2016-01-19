@@ -1,61 +1,63 @@
 #region --- Revision History ---
+
 /*
- * 
+ *
  *  This document and its contents are the property of Bombardier Inc. or its subsidiaries and contains confidential, proprietary information.
  *  The reproduction, distribution, utilization or the communication of this document, or any part thereof, without express authorization is strictly
  *  prohibited. Offenders will be held liable for the payment of damages.
- * 
+ *
  *  (C) 2010    Bombardier Inc. or its subsidiaries. All rights reserved.
- * 
+ *
  *  Solution:   Portable Test Unit
- * 
+ *
  *  Project:    Common
- * 
+ *
  *  File name:  CommunicationParent.cs
- * 
+ *
  *  Revision History
  *  ----------------
  */
 
 #region - [1.0 to 1.11] -
-/* 
+
+/*
  *  Date        Version Author          Comments
  *  10/15/10    1.0     K.McD           1.  First entry into TortoiseSVN.
- * 
+ *
  *  11/16/10    1.1     K.McD           1.  Removed the AutoScale_t structure.
- * 
+ *
  *  01/17/11    1.2     K.McD           1.  Removed the SimulateCommunicationLink conditional compilation.
- * 
+ *
  *  01/31/11    1.3     K.McD           1.  Added support for a mutex to control read/write access to the communication port.
- * 
+ *
  *  02/14/11    1.2     K.McD           1.  Removed the WatchSize property.
  *                                      2.  Added support for debug mode.
- * 
+ *
  *  02/28/11    1.3     K.McD           1.  Auto modified as a result of a resource name change.
- * 
+ *
  *  03/18/11    1.4     K.McD           1.  Modified a number of comments and XML tags.
- * 
+ *
  *  04/27/11    1.5     K.McD           1.  Modified the enumerator used to specify the different operational modes of the chart recorder.
  *                                      2.  Corrected a number of exception messages.
  *                                      3.  Added the communication method used to retrieve the current mode of the chart recorder from the VCU.
- *                                      
+ *
  *  05/24/11    1.6     K.McD           1.  Added the SetChartMode(), SetChartIndex(), SetChartScale() and DownloadChartRecorderWorkset() methods.
- *  
+ *
  *  05/26/11    1.7     K.McD           1.  Corrected the SetChartScale() method to download the specified parameter values rather than the upper and
  *                                          lower limits defined in the data dictionary.
- *                                          
+ *
  *  06/23/11    1.8     K.McD           1.  Added support for displaying debug mode information to the following communication methods: GetChartMode(),
  *                                          SetChartMode(), SetChartIndex() and SetChartScale().
  *                                      2.  Modified a number of XML tags.
  *                                      3.  Re-ordered the ChartMode enumerator elements.
- *                                      
+ *
  *  07/20/11    1.9     K.McD           1.  Added the value information associated with the enumerator/constant to a number of XML tags.
  *                                      2.  Added the SIMULATOR element to the Protocol enumerator.
  *                                      3.  Modified the constructor signature to use the ICommunicationParent interface.
- *                                      
+ *
  *  08/23/11    1.10    K.McD           1.  Modified each method to use the following pattern in order to improve error handling in the event that
  *                                          communications to the target hardware is lost.
- *  
+ *
  *                                              public virtual void myMethod( ... )
  *                                              {
  *                                                  CommunicationError errorCode;
@@ -70,29 +72,30 @@
  *                                                      errorCode = CommunicationError.SystemException;
  *                                                      throw new CommunicationException(Resources.ResourceName, errorCode);
  *                                                  }
- *                                                  
+ *
  *                                                  if (errorCode != CommunicationError.Success)
  *                                                  {
  *                                                      throw new CommunicationException(Resources.ResourceName, errorCode);
  *                                                  }
- *                                                  
+ *
  *                                                  if (DebugMode.Enabled == true)
  *                                                  {
  *                                                      DebugMode.MethodName_t methodName = new DebugMode.MethodName_t( ... );
  *                                                      DebugMode.Write(methodName.ToXML());
  *                                                  }
- *                                                  
+ *
  *                                                  .
  *                                                  .
  *                                                  .
  *                                              }
- *                                         
+ *
  *  02/27/14    1.11    K.McD           1.  Corrected the call to PTUDLL32.GetEmbeddedInformation() in the GetEmbeddedInformation() method to pass
  *                                          'out localTargetConfiguration.ConversionMask' rather than 'out targetConfiguration.ConversionMask'.
  *
- *                                      2.  Changed the call to PTUDLL32.GetChartMode() in the GetChartMode() method to 
+ *                                      2.  Changed the call to PTUDLL32.GetChartMode() in the GetChartMode() method to
  *                                          match the new prototype, now uses 'out' rather than 'ref'.
  */
+
 #endregion - [1.0 to 1.11] -
 
 #region- [2.0] -
@@ -100,43 +103,43 @@
  *  03/11/15    2.0     K.McD           References
  *                                      1.  Upgrade the PTU software to extend the support for the R188 project as defined in purchase order
  *                                          4800010525-CU2/19.03.2015.
- *                                      
- *                                          1.  Implement changes outlined in the email to Mark Smorul on 30th May 2014 – PTUDLL32 modifications 
+ *
+ *                                          1.  Implement changes outlined in the email to Mark Smorul on 30th May 2014 – PTUDLL32 modifications
  *                                              to support both 32 and 64 bit architecture.
- *                                          
+ *
  *                                          2.  Implement changes to allow the PTU to handle both 2 and 4 character date codes.
- *                                      
+ *
  *                                      Modifications
- *                                      1.  Added DelegateIsNull = 50 definition to the CommunicationError enumerator and initialized the local 
+ *                                      1.  Added DelegateIsNull = 50 definition to the CommunicationError enumerator and initialized the local
  *                                          errorCode variable to CommunicationError.UnknownError for each of the communication methods within the
  *                                          class.
- *                                          
+ *
  *                                      2.  Added delegate declarations for all of the VcuCommunication32.dll and VcuCommunication64 methods that
  *                                          are associated with the Common dynamic link library.
- *                                          
+ *
  *                                      3.  Added member delegates for each of the delegate declarations.
- *                                          
+ *
  *                                      4.  Removed the member variables and properties associated with the MeasureUpdateWatchElements
  *                                          conditional compilation symbol.
- *                                          
+ *
  *                                      5.  Rationalized the design of the constructors to use the 'this()' call.
- *                                          
- *                                      6.  Modified the zero parameter constructor to instantiate the delegates with either the 
- *                                          32 or 64 bit version of the corresponding method depending upon the current state of the 
+ *
+ *                                      6.  Modified the zero parameter constructor to instantiate the delegates with either the
+ *                                          32 or 64 bit version of the corresponding method depending upon the current state of the
  *                                          'Environment.Is64BitOperatingSystem' variable.
- *                                          
+ *
  *                                      7.  Modified each of the methods to check that the function delegate has been initialized prior to its use.
- *                                          
- *                                      8.  Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted, 
+ *
+ *                                      8.  Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted,
  *                                          the method was modified to a check that the Mutex has been initialized prior to its use.
- *                                          
- *                                      9.  Replaced all calls to the methods within PTUDLL32.dll with calls via function delegates. This allows 
+ *
+ *                                      9.  Replaced all calls to the methods within PTUDLL32.dll with calls via function delegates. This allows
  *                                          support for both 32 and 64 bit systems.
- *                                          
- *                                      10. Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted, 
- *                                          a 'finally' block was added to each 'try' block to ensure that the Mutex is released even if an exception 
+ *
+ *                                      10. Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted,
+ *                                          a 'finally' block was added to each 'try' block to ensure that the Mutex is released even if an exception
  *                                          occurs. The code pattern was modified to use the following template:
- *                                          
+ *
  *                                          CommunicationError errorCode = CommunicationError.UnknownError;
  *                                          try
  *                                          {
@@ -152,7 +155,7 @@
  *                                          {
  *                                              m_MutexCommuncationInterface.ReleaseMutex();
  *                                          }
- *                                          
+ *
  *                                          if (DebugMode.Enabled == true)
  *                                          {
  *                                              ...
@@ -162,19 +165,20 @@
  *                                          {
  *                                              throw new CommunicationException("<function-name>", errorCode);
  *                                          }
- *                                          
+ *
  *                                      11. Added the SetWatchSize() method to include support for projects that do not update use the standard number
  *                                          of watch variables on each poll of the VCU.
- *                                          
+ *
  *                                      12. Modified the delegate declarations for the SetTimeDate() and GetTimeDate() methods to include the additional parameter that
  *                                          was introduced to specify whether the Vehicle Control Unit uses 2 or 4 digit year code format.
  */
-#endregion- [2.0] -
+
+#endregion --- Revision History ---
+
 #endregion --- Revision History ---
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Common.Configuration;
 using Common.Properties;
@@ -183,6 +187,7 @@ using VcuComm;
 namespace Common.Communication
 {
     #region --- Enumerators ---
+
     /// <summary>
     /// The mode of the chart recorder, used to calibrate the chart recorder.
     /// </summary>
@@ -523,11 +528,13 @@ namespace Common.Communication
         /// </summary>
         UnknownError = -100
     }
+
     #endregion --- Enumerators ---
 
     #region --- Structures ---
+
     /// <summary>
-    /// Structure containing the fields of an individual watch element. 
+    /// Structure containing the fields of an individual watch element.
     /// </summary>
     [Serializable]
     public struct WatchElement_t
@@ -543,7 +550,7 @@ namespace Common.Communication
         public double Value;
 
         /// <summary>
-        /// The current data type of the watch variable that is mapped to the watch element. 
+        /// The current data type of the watch variable that is mapped to the watch element.
         /// </summary>
         public short DataType;
 
@@ -622,7 +629,7 @@ namespace Common.Communication
     public struct Port_t
     {
         /// <summary>
-        /// The name of the port 
+        /// The name of the port
         /// </summary>
         public string Name;
 
@@ -685,9 +692,10 @@ namespace Common.Communication
             BaudRate = Baud.Baud019200;
             Parity = Parity.None;
             BitsPerCharacter = BitsPerCharacter.Eight;
-            StopBits = StopBits.One; 
+            StopBits = StopBits.One;
         }
     }
+
     #endregion --- Structures ---
 
     /// <summary>
@@ -695,8 +703,8 @@ namespace Common.Communication
     /// </summary>
     public class CommunicationParent : ICommunicationParent
     {
-
         #region --- Constants ---
+
         /// <summary>
         /// The parameter value required for the UpdateWatchElements() function of the PTUDLL32 dynamic link library to force an update of all watch
         /// elements. Value: 1.
@@ -734,9 +742,11 @@ namespace Common.Communication
         /// The default number of ms to wait before releasing the communication mutex.
         /// </summary>
         protected const int DefaultMutexWaitDurationMs = 2000;
+
         #endregion --- Constants ---
 
         #region --- Member Variables ---
+
         /// <summary>
         /// Mutex to control read/write access to the <c>CommunicationInterface</c> used to communicate with the VCU.
         /// </summary>
@@ -762,7 +772,7 @@ namespace Common.Communication
 
         /// <summary>
         /// The communication device that is used to communicate with the embedded target PTU. Currently supported
-        /// devices are RS-232 and TCP. 
+        /// devices are RS-232 and TCP.
         /// </summary>
         private ICommDevice m_CommDevice;
 
@@ -773,21 +783,21 @@ namespace Common.Communication
         protected WatchClockMarshal m_WatchClockMarshal;
 
         /// <summary>
-        /// Object that is used to call methods that gather or send information pertaining to events 
+        /// Object that is used to call methods that gather or send information pertaining to events
         /// and the data streams on the embedded PTU target.
         /// </summary>
         protected EventStreamMarshal m_EventStreamMarshal;
 
         /// <summary>
-        /// Object that is used to call methods that gather or send information pertaining to self 
+        /// Object that is used to call methods that gather or send information pertaining to self
         /// test execution on the embedded PTU target.
         /// </summary>
-        protected SelfTestMarshal m_SelfTestMarshal;        
-
+        protected SelfTestMarshal m_SelfTestMarshal;
 
         #endregion --- Member Variables ---
 
         #region --- Constructors ---
+
         /// <summary>
         /// Initialize a new instance of the class and set the function delegates, properties and member variables.
         /// </summary>
@@ -801,7 +811,6 @@ namespace Common.Communication
 
             m_CommunicationSetting = new CommunicationSetting_t();
             m_MutexCommuncationInterface = new Mutex();
-
         }
 
         /// <summary>
@@ -809,7 +818,8 @@ namespace Common.Communication
         /// </summary>
         /// <param name="communicationSetting">The communication setting that is to be used to initialize the <c>CommunicationSetting</c>
         /// property.</param>
-        public CommunicationParent(CommunicationSetting_t communicationSetting) : this()
+        public CommunicationParent(CommunicationSetting_t communicationSetting)
+            : this()
         {
             m_CommunicationSetting = communicationSetting;
         }
@@ -819,19 +829,22 @@ namespace Common.Communication
         /// </summary>
         /// <param name="communicationInterface">Reference to the communication interface containing the properties and member variables that are to
         /// be used to initialize the class.</param>
-        public CommunicationParent(ICommunicationParent communicationInterface) : this()
+        public CommunicationParent(ICommunicationParent communicationInterface)
+            : this()
         {
             m_CommunicationSetting = communicationInterface.CommunicationSetting;
             m_CommDevice = communicationInterface.CommDevice;
             m_WatchClockMarshal = communicationInterface.WatchClockMarshall;
             m_EventStreamMarshal = communicationInterface.EventStreamMarshall;
         }
+
         #endregion --- Constructors ---
 
         #region --- Disposal ---
         #endregion --- Disposal ---
 
         #region --- Methods ---
+
         /// <summary>
         /// Initialize the communication port.
         /// </summary>
@@ -864,7 +877,6 @@ namespace Common.Communication
                 {
                     error = m_CommDevice.Open(args);
                 }
-
             }
             catch (Exception)
             {
@@ -923,7 +935,6 @@ namespace Common.Communication
                 DebugMode.CloseCommunication_t closeCommunication = new DebugMode.CloseCommunication_t(protocol, errorCode);
                 DebugMode.Write(closeCommunication.ToXML());
             }
-
         }
 
         /// <summary>
@@ -967,7 +978,7 @@ namespace Common.Communication
             if (DebugMode.Enabled == true)
             {
                 DebugMode.GetEmbeddedInformation_t getEmbeddedInformation =
-                    new DebugMode.GetEmbeddedInformation_t( localTargetConfiguration.Version,
+                    new DebugMode.GetEmbeddedInformation_t(localTargetConfiguration.Version,
                                                             localTargetConfiguration.CarIdentifier,
                                                             localTargetConfiguration.SubSystemName,
                                                             localTargetConfiguration.ProjectIdentifier,
@@ -989,7 +1000,7 @@ namespace Common.Communication
         }
 
         /// <summary>
-        /// Get the mode of the chart recorder. 
+        /// Get the mode of the chart recorder.
         /// </summary>
         /// <returns>The mode of the chart recorder: ramp, zero-output, full-scale, data.</returns>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.GetChartMode() method is
@@ -1215,10 +1226,10 @@ namespace Common.Communication
             }
         }
 
-
         #endregion --- Methods ---
 
         #region --- Properties ---
+
         /// <summary>
         /// Gets or sets the communication settings associated with the selected target.
         /// </summary>
@@ -1250,7 +1261,7 @@ namespace Common.Communication
         public WatchClockMarshal WatchClockMarshall
         {
             get { return m_WatchClockMarshal; }
-    	}
+        }
 
         /// <summary>
         /// TOOD
@@ -1261,5 +1272,5 @@ namespace Common.Communication
         }
 
         #endregion --- Properties ---
-	}
+    }
 }
