@@ -761,12 +761,6 @@ namespace Common.Communication
         protected CommunicationSetting_t m_CommunicationSetting;
 
         /// <summary>
-        /// A flag that specifies whether the application is running on a 64 bit operating system. True, if
-        /// running on a 64 bit operating system; otherwise, false.
-        /// </summary>
-        protected bool m_Is64BitOperatingSystem = false;
-
-        /// <summary>
         /// The communication device that is used to communicate with the embedded target PTU. Currently supported
         /// devices are RS-232 and TCP. 
         /// </summary>

@@ -289,6 +289,7 @@ namespace Common.Communication
                         }
                         catch (Exception ex)
                         {
+                            // TODO
                             ex.ToString();
                         }
 
