@@ -344,11 +344,7 @@ namespace Common.Communication
         /// that the test passed; otherwise, the test failed.</param>
         /// <param name="SetInfo">An enumerator to define the truck information associated with the message.</param>
         /// <param name="NumOfVars">The number of variables associated with the message.</param>
-        /// <param name="InteractiveResults">A pointer to a byte array that is used to store the value of each self test variable associated with the current
-        /// interactive test. This byte array must be mapped to an array of <see cref="InteractiveResults_t"/> structures to obtain the results. Data
-        /// is passed this way as the size of the InteractiveResults_t structure in C# is different to the value used in VcuCommunication32. Each
-        /// element of the array of the InteractiveResults_t structures in VcuCommunication32 consists of a double (8 bytes) followed by an integer
-        /// (4 byte) making a total of 12 bytes.</param>
+        /// <param name="InteractiveResults">Array that stores the interactive results</param>
         /// <returns>Success, if the communication request was successful; otherwise, an error code.</returns>
         public CommunicationError GetSelfTestResult(out Int16 ValidResult, out MessageMode MessageMode, out Int16 TestID,
                                                      out Int16 TestCase, out Int16 TestResult, out TruckInformation SetInfo,

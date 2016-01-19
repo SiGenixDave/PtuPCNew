@@ -104,8 +104,6 @@
   <ItemGroup>
     <Compile Include="Communication\CommunicationEvent.cs" />
     <Compile Include="Communication\CommunicationEventOffline.cs" />
-    <Compile Include="Communication\VcuCommunication32Event.cs" />
-    <Compile Include="Communication\VcuCommunication64Event.cs" />
     <Compile Include="Forms\FormConfigureFaultLogParameters.cs">
       <SubType>Form</SubType>
     </Compile>

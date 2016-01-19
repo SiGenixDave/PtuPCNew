@@ -79,8 +79,6 @@
     <Compile Include="Communication\Interfaces\ICommunicationWatch.cs" />
     <Compile Include="Communication\PtuTargetCommunication.cs" />
     <Compile Include="Communication\SelfTestMarshal.cs" />
-    <Compile Include="Communication\VcuCommunication32.cs" />
-    <Compile Include="Communication\VcuCommunication64.cs" />
     <Compile Include="Communication\WatchClockMarshal.cs" />
     <Compile Include="Communication\WatchFrame.cs" />
     <Compile Include="Configuration\DataDictionaryInformation.cs" />

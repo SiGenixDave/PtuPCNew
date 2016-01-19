@@ -270,8 +270,8 @@ namespace Watch.Communication
         /// <remarks>The watch elements are the watch values that are being monitored by the target hardware as defined by the 
         /// <c>SetWatchElements()> method.</c></remarks>
         /// <returns>The retrieved watch element table, if successful; otherwise, null.</returns>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the VcuCommunication32/VcuCommunication64
-        /// UpdateElements() method is not CommunicationError.Success.</exception>
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the
+        /// UpdateWatchElements() method is not CommunicationError.Success.</exception>
         public WatchElement_t[] UpdateWatchElements(bool forceUpdate)
         {
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationWatch.UpdateWatchElements() - [m_MutexCommuncationInterface != null]");

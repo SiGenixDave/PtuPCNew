@@ -71,8 +71,6 @@
   <ItemGroup>
     <Compile Include="Communication\CommunicationSelfTest.cs" />
     <Compile Include="Communication\CommunicationSelfTestOffline.cs" />
-    <Compile Include="Communication\VcuCommunication32SelfTest.cs" />
-    <Compile Include="Communication\VcuCommunication64SelfTest.cs" />
     <Compile Include="Forms\FormTestListDefine.cs">
       <SubType>Form</SubType>
     </Compile>

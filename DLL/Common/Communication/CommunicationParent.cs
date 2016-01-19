@@ -519,11 +519,6 @@ namespace Common.Communication
         BadRequest = -13,
 
         /// <summary>
-        /// The delegate used to call the appropriate VcuCommunication function has not been initialized.
-        /// </summary>
-        DelegateIsNull = -50,
-
-        /// <summary>
         /// Unknown error. Value: -100.
         /// </summary>
         UnknownError = -100

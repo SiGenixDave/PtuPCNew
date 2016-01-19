@@ -217,7 +217,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void ChangeEventLog(Log log)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.ChangeEventLog() - [m_MutexCommuncationInterface != null]");
 
             short logIndex, sampleIntervalMs = -1, changeStatus = -1, maxTasks = -1, maxEventsPerTask = -1;
@@ -268,7 +267,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void LoadEventLog(out short eventCount, out uint oldIndex, out uint newIndex)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.LoadEventLog() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -310,7 +308,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void GetEventRecord(Log currentEventLog, short eventIndex, out EventRecord eventRecord)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetEventRecord() - [m_MutexCommuncationInterface != null]");
 
             short eventIdentifier = -1, taskIdentifier = -1, streamNumber = -1;
@@ -430,7 +427,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void GetEventLogIndex(out short eventLogIndex, out short eventLogCount)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetEventLogIndex() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -475,7 +471,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void GetFaultVar(short eventIndex, short eventVariableCount, short[] dataTypes, out double[] values)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetFaultVar() - [m_MutexCommuncationInterface != null]");
 
             // Instantiate an array of doubles to hold the return values.
@@ -518,7 +513,6 @@ namespace Event.Communication
         /// not CommunicationError.Success.</exception>
         public void InitializeEventLog()
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.InitializeEventLog() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -556,7 +550,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void ClearEvent()
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.ClearEvent() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -610,7 +603,6 @@ namespace Event.Communication
         public void GetDefaultStreamInformation(out short watchVariableCount, out short sampleCount, out short sampleMultiple,
                                                 out short[] watchIdentifiers, out short[] dataTypes)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null,
                          "CommunicationEvent.GetDefaultStreamInformation() - [m_MutexCommuncationInterface != null]");
 
@@ -672,7 +664,6 @@ namespace Event.Communication
         public void GetStreamInformation(short streamNumber, out short watchVariableCount, out short sampleCount, out short sampleMultiple,
                                          out short[] watchIdentifiers, out short[] dataTypes)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetStreamInformation() - [m_MutexCommuncationInterface != null]");
 
             short[] tempWatchIdentifiers = new short[Parameter.WatchSizeFaultLog];
@@ -728,7 +719,6 @@ namespace Event.Communication
         /// methods is not CommunicationError.Success.</exception>
         public DataStream_t GetStream(EventRecord eventRecord)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetStream() - [m_MutexCommuncationInterface != null]");
 
             Debug.Assert(eventRecord.StreamSaved == true, "CommuncationEvent.GetStream() - [eventRecord.StreamSaved == true]");
@@ -866,7 +856,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void CheckFaultLogger(ref short eventCount, ref uint newIndex)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.CheckFaultlogger() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -921,7 +910,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void GetFltFlagInfo(short[] validFlags, ref short[] enabledFlags, ref short[] streamTriggeredFlags, short eventCount)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetFltFlagInfo() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -960,7 +948,6 @@ namespace Event.Communication
         /// CommunicationError.Success.</exception>
         public void SetFaultFlags(short taskIdentfier, short eventIdentifier, short enabledFlag, short streamTriggeredFlag)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.SetFaultFlags() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
@@ -1006,7 +993,6 @@ namespace Event.Communication
         public void GetFltHistInfo(short[] validFlags, ref short[] cumulativeHistoryCounts, ref short[] recentHistoryCounts, short maxTasks,
                                    short maxEventsPerTask)
         {
-            // Check that the function delegate has been initialized.
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.GetFltHistInfo() - [m_MutexCommuncationInterface != null]");
 
             CommunicationError errorCode = CommunicationError.UnknownError;
