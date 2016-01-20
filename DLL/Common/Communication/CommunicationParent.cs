@@ -777,18 +777,6 @@ namespace Common.Communication
         /// </summary>
         protected WatchClockMarshal m_WatchClockMarshal;
 
-        /// <summary>
-        /// Object that is used to call methods that gather or send information pertaining to events
-        /// and the data streams on the embedded PTU target.
-        /// </summary>
-        protected EventStreamMarshal m_EventStreamMarshal;
-
-        /// <summary>
-        /// Object that is used to call methods that gather or send information pertaining to self
-        /// test execution on the embedded PTU target.
-        /// </summary>
-        protected SelfTestMarshal m_SelfTestMarshal;
-
         #endregion --- Member Variables ---
 
         #region --- Constructors ---
@@ -830,7 +818,6 @@ namespace Common.Communication
             m_CommunicationSetting = communicationInterface.CommunicationSetting;
             m_CommDevice = communicationInterface.CommDevice;
             m_WatchClockMarshal = communicationInterface.WatchClockMarshall;
-            m_EventStreamMarshal = communicationInterface.EventStreamMarshall;
         }
 
         #endregion --- Constructors ---
@@ -896,8 +883,6 @@ namespace Common.Communication
             {
                 errorCode = CommunicationError.Success;
                 m_WatchClockMarshal = new WatchClockMarshal(m_CommDevice);
-                m_EventStreamMarshal = new EventStreamMarshal(m_CommDevice);
-                m_SelfTestMarshal = new SelfTestMarshal(m_CommDevice);
             }
 
             if (errorCode != CommunicationError.Success)
@@ -1242,13 +1227,6 @@ namespace Common.Communication
             get { return m_CommDevice; }
         }
 
-        /// <summary>
-        /// TOOD
-        /// </summary>
-        public EventStreamMarshal EventStreamMarshall
-        {
-            get { return m_EventStreamMarshal; }
-        }
 
         /// <summary>
         /// TOOD
@@ -1256,14 +1234,6 @@ namespace Common.Communication
         public WatchClockMarshal WatchClockMarshall
         {
             get { return m_WatchClockMarshal; }
-        }
-
-        /// <summary>
-        /// TOOD
-        /// </summary>
-        public SelfTestMarshal SelfTestMarshall
-        {
-            get { return m_SelfTestMarshal; }
         }
 
         #endregion --- Properties ---

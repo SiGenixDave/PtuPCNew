@@ -97,6 +97,7 @@ using System.Diagnostics;
 using Common;
 using Common.Communication;
 using Common.Configuration;
+using VcuComm;
 
 namespace SelfTest.Communication
 {
@@ -105,6 +106,12 @@ namespace SelfTest.Communication
     /// </summary>
     public class CommunicationSelfTest : CommunicationParent, ICommunicationSelfTest
     {
+
+        /// <summary>
+        /// Object that is used to call methods that gather or send information pertaining to self
+        /// test execution on the embedded PTU target.
+        /// </summary>
+        private SelfTestMarshal m_SelfTestMarshal;
 
         #region --- Constructors ---
         /// <summary>
@@ -115,6 +122,7 @@ namespace SelfTest.Communication
         public CommunicationSelfTest(ICommunicationParent communicationInterface)
             : base(communicationInterface)
         {
+            m_SelfTestMarshal = new SelfTestMarshal(communicationInterface.CommDevice);
         }
         #endregion --- Constructors ---
 

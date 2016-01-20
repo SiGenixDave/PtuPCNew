@@ -119,16 +119,6 @@ namespace Common.Communication
         /// </summary>
         WatchClockMarshal WatchClockMarshall { get; }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        EventStreamMarshal EventStreamMarshall { get; }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        SelfTestMarshal SelfTestMarshall { get; }
-
         #endregion - [Properties] -
     }
 }

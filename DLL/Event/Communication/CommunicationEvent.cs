@@ -179,6 +179,12 @@ namespace Event.Communication
     /// </summary>
     public class CommunicationEvent : CommunicationParent, ICommunicationEvent
     {
+        /// <summary>
+        /// Object that is used to call methods that gather or send information pertaining to events
+        /// and the data streams on the embedded PTU target.
+        /// </summary>
+        private EventStreamMarshal m_EventStreamMarshal;
+
         #region --- Constants ---
         /// <summary>
         /// The <c>CultureInfo</c> string used to represent - english (US). Value: "en-US";
@@ -201,6 +207,7 @@ namespace Event.Communication
         public CommunicationEvent(ICommunicationParent communicationInterface)
             : base(communicationInterface)
         {
+            m_EventStreamMarshal = new EventStreamMarshal(communicationInterface.CommDevice);
         }
         #endregion --- Constructors ---
 
