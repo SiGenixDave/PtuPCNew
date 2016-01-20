@@ -42,6 +42,12 @@
  *                                      1.  In order to accommodate the additional status labels, the size of the original status labels was reduced. The CarIdentifier
  *                                          constant value, which represents the car-identifier text that is displayed when the PTU is not connected to a physical
  *                                          car, was changed from "No Car" to "-" so that the status message "Car id.: -" would fit inside the status label.
+ *
+ *  01/20/2016 - DAS
+ * 
+ *                                      Modifications
+ *                                      1. Added objects and properties so that communication to the embedded target 
+ *                                         can take place. These objects are used in place of the previous delegates.
  */
 #endregion --- Revision History ---
 
@@ -267,28 +273,14 @@ namespace Common.Communication
         }
 
         /// <summary>
-        /// TOOD
-        /// </summary>
-        public EventStreamMarshal EventStreamMarshall
-        {
-            get { return null; }
-        }
-
-        /// <summary>
-        /// TOOD
+        /// Used to access interface methods to the embedded target that access and/or change the 
+        /// watch variables and the real time clock.
         /// </summary>
         public WatchClockMarshal WatchClockMarshall
         {
             get { return null; }
         }
 
-        /// <summary>
-        /// TOOD
-        /// </summary>
-        public SelfTestMarshal SelfTestMarshall
-        {
-            get { return null; }
-        }
 
         #endregion --- Properties ---
     }

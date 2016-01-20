@@ -97,7 +97,6 @@
  */
 
 #endregion - [1.0 to 1.11] -
-
 #region- [2.0] -
 /*
  *  03/11/15    2.0     K.McD           References
@@ -172,7 +171,19 @@
  *                                      12. Modified the delegate declarations for the SetTimeDate() and GetTimeDate() methods to include the additional parameter that
  *                                          was introduced to specify whether the Vehicle Control Unit uses 2 or 4 digit year code format.
  */
-
+#endregion --- Revision History ---
+#region- [3.0] -
+/*
+ *  01/20/2016 - DAS
+ * 
+ *                                      Modifications
+ *                                      1.  Removed all delegates to unmanaged code as well as any references as to
+ *                                          whether the operating system is 32 or 64 bits. All legacy C++ code used
+ *                                          to interface to the embedded target has been converted to C# and thus
+ *                                          only 1 PTU application is now needed
+ *                                      2. Added objects and properties so that communication to the embedded target 
+ *                                         can take place. These objects are used in place of the previous delegates.
+ */
 #endregion --- Revision History ---
 
 #endregion --- Revision History ---
@@ -1227,9 +1238,9 @@ namespace Common.Communication
             get { return m_CommDevice; }
         }
 
-
         /// <summary>
-        /// TOOD
+        /// Used to access interface methods to the embedded target that access and/or change the 
+        /// watch variables and the real time clock.
         /// </summary>
         public WatchClockMarshal WatchClockMarshall
         {

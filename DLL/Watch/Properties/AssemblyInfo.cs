@@ -430,7 +430,7 @@ using System.Resources;
 // associated with an assembly.
 [assembly: AssemblyCompany("Bombardier Transportation (Holdings) USA Inc.")]
 [assembly: AssemblyProduct("Portable Test Application")]
-[assembly: AssemblyCopyright("(C) 2010 - 2015 Bombardier Transportation (Holdings) USA Inc.")]
+[assembly: AssemblyCopyright("(C) 2010 - 2016 Bombardier Transportation (Holdings) USA Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguageAttribute("")]

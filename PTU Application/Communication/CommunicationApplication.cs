@@ -95,6 +95,13 @@
  */
 #endregion - [1.6] -
 
+#region - [1.7] -
+/*
+ *  01/20/2016  1.14     DAS          Modifications
+ *                                      1.  Replaced all calls to unmanaged code with calls to managed code.
+ */
+#endregion - [1.7] -
+
 #endregion --- Revision History ---
 
 using System;
@@ -205,7 +212,6 @@ namespace Bombardier.PTU.Communication
             {
                 m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
                 errorCode = m_WatchClockMarshal.GetTimeDate(use4DigitYearCode, ref year, ref month, ref day, ref hour, ref minute, ref second);
-                //errorCode = (CommunicationError)m_GetTimeDate(use4DigitYearCodeAsShort, out year, out month, out day, out hour, out minute, out second);
             }
             catch (Exception)
             {
@@ -279,7 +285,7 @@ namespace Bombardier.PTU.Communication
         /// <summary>
         /// Set the car identifier.
         /// </summary>
-        /// <param name="carIdentifier">The car identfier.</param>
+        /// <param name="carIdentifier">The car identifier.</param>
         public void SetCarID(string carIdentifier)
         {
             // Check that the function delegate has been initialized.

@@ -142,6 +142,12 @@
  *                                          database.
  *                                      2.  Removed the following member variables/properties: short: YearCodeSize.
  *                                              
+ *  01/20/2015      DAS                 Modifications
+ *                                      1.  Removed the SetWatchSize(m_WatchSize). Unmanaged code required knowledge of 
+ *                                          the watch size in order to allocate memory. Managed code no longer needs 
+ *                                          this knowledge because arrays that are passed to objects inherently have
+ *                                          size (Length) associated with them. Unmanaged code could not access these
+ *                                          attributes.
  */
 #endregion --- Revision History ---
 

@@ -1810,6 +1810,14 @@
  *  
  */
 #endregion - [Revision History 6.15.1] -
+
+#region - [Revision History 6.16.1] -
+/*
+ *  01/20/16    6.16.1  DAS       Modifications
+ *                                  1.  Removed all unmanaged code to legacy target interface C++ code and replaced
+ *                                      with managed (C#) code
+ */
+#endregion - [Revision History 6.16.1] -
 #endregion --- Revision History ---
 
 using System.Reflection;
@@ -1819,7 +1827,7 @@ using System.Resources;
 // information associated with an assembly.
 [assembly: AssemblyCompany("Bombardier Transportation (Holdings) USA Inc.")]
 [assembly: AssemblyProduct("Portable Test Application")]
-[assembly: AssemblyCopyright("(C) 2010 - 2015 Bombardier Transportation (Holdings) USA Inc.")]
+[assembly: AssemblyCopyright("(C) 2010 - 2016 Bombardier Transportation (Holdings) USA Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguageAttribute("")]

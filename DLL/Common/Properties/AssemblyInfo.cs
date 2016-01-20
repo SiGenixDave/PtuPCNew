@@ -1358,6 +1358,15 @@
  * 
  */
 #endregion - [1.26] -
+
+#region - [1.27] -
+/*
+ *  01/20/2016   1.27    DAS        Modifications
+ *                                  1.  Removed all references to delegates to unmanaged code and added managed
+ *                                      classes
+ * 
+ */
+#endregion - [1.27] -
 #endregion --- Revision History ---
 
 using System.Reflection;
@@ -1368,7 +1377,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyCompany("Bombardier Transportation (Holdings) USA Inc.")]
 [assembly: AssemblyProduct("Portable Test Application")]
-[assembly: AssemblyCopyright("(C) 2010 - 2015 Bombardier Transportation (Holdings) USA Inc.")]
+[assembly: AssemblyCopyright("(C) 2010 - 2016 Bombardier Transportation (Holdings) USA Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguageAttribute("")]
@@ -1395,4 +1404,4 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers by using the '*'.
 
-[assembly: AssemblyVersion("1.26.0.0")]
+[assembly: AssemblyVersion("1.27.0.0")]
