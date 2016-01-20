@@ -42,7 +42,7 @@ namespace Common.Communication
         /// <summary>
         /// Write the specified data to the watch variable specified by the <paramref name="dictionaryIndex"/> parameter.
         /// </summary>
-        /// <param name="dictionaryIndex">The disctionary index.</param>
+        /// <param name="dictionaryIndex">The dictionary index.</param>
         /// <param name="dataType">The data type.</param>
         /// <param name="data">The data.</param>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CloseCommunication() method is not CommunicationError.Success.</exception>
@@ -68,7 +68,7 @@ namespace Common.Communication
         WatchElement_t[] UpdateWatchElements(bool forceUpdate);
 
         /// <summary>
-        /// Update the watch variable lookup table with the latest watch element data retrieved from the targer hardware.
+        /// Update the watch variable lookup table with the latest watch element data retrieved from the target hardware.
         /// </summary>
         /// <param name="watchElements">The watch element table retrieved from the target hardware.</param>
         void UpdateWatchVariableTable(Common.Communication.WatchElement_t[] watchElements);
