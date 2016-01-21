@@ -52,7 +52,7 @@ namespace VcuComm
         /// Used to adjust the read timeout of the serial port. -1 means the receive call will wait forever until
         /// a character is received
         /// </summary>
-        private Int32 m_ReadTimeout = -1;
+        private Int32 m_ReadTimeout = 2000;
 
         /// <summary>
         /// Stores the most recent serial port error. Cleared whenever a calling function reads the state.
@@ -74,7 +74,8 @@ namespace VcuComm
         #region --- Properties ---
 
         /// <summary>
-        /// TODO
+        /// Allows access to the logged error so as to pinpoint the part of the code where the error occurred and 
+        /// the type of error logged
         /// </summary>
         public ProtocolPTU.Errors Error
         {
@@ -89,7 +90,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Allows access to any exception message containing detailed information
         /// </summary>
         public String ExceptionMessage
         {
@@ -104,7 +105,8 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// This is the amount of time (in msecs) that the serial port waits for at least 1 character
+        /// before a timeout expires.
         /// </summary>
         public Int32 ReadTimeout
         {
@@ -114,7 +116,11 @@ namespace VcuComm
             }
             set
             {
-                m_ReadTimeout = value;
+                if (m_SerialPort != null)
+                {
+                    m_ReadTimeout = value;
+                    m_SerialPort.ReadTimeout = m_ReadTimeout;
+                }
             }
         }
 

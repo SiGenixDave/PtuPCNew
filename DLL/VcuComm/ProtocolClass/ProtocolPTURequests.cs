@@ -174,7 +174,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Issues a request to the embedded target for a data log buffer
         /// </summary>
         public class GetDatalogBufferReq : ICommRequest
         {
@@ -190,14 +190,14 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
 
             /// <summary>
-            /// TODO
+            /// the index into the array of the desired data log
             /// </summary>
             private UInt16 DatalogIndex;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="DatalogIndex"></param>
+            /// <param name="DatalogIndex">the index in the embedded target data log array</param>
             public GetDatalogBufferReq(UInt16 DatalogIndex)
             {
                 this.DatalogIndex = DatalogIndex;
@@ -233,7 +233,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Issues a request  to the embedded target for at least one fault log 
         /// </summary>
         public class GetFaultDataReq : ICommRequest
         {
@@ -249,20 +249,20 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
 
             /// <summary>
-            /// TODO
+            /// The starting fault log index to get faults from
             /// </summary>
             private UInt32 FaultIndex;
 
             /// <summary>
-            /// TODO
+            /// The number of fault logs to retrieve 
             /// </summary>
             private UInt16 NumberOfFaults;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="FaultIndex"></param>
-            /// <param name="NumberOfFaults"></param>
+            /// <param name="FaultIndex">The starting fault log index to get faults from</param>
+            /// <param name="NumberOfFaults">The number of fault logs to retrieve</param>
             public GetFaultDataReq(UInt32 FaultIndex, UInt16 NumberOfFaults)
             {
                 this.FaultIndex = FaultIndex;
@@ -301,7 +301,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Gets the number of faults detected for a specific fault from the embedded target. 
         /// </summary>
         public class GetFaultHistoryReq : ICommRequest
         {
@@ -317,20 +317,20 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
 
             /// <summary>
-            /// TODO
+            /// The fault id whose history is retrieved
             /// </summary>
             private UInt16 FaultID;
             
             /// <summary>
-            /// TODO
+            /// The task id of the fault whose history is retrieved
             /// </summary>
             private UInt16 TaskID;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="TaskID"></param>
-            /// <param name="FaultID"></param>
+            /// <param name="TaskID">The task id of the fault whose history is retrieved</param>
+            /// <param name="FaultID">The fault id whose history is retrieved</param>
             public GetFaultHistoryReq(UInt16 TaskID, UInt16 FaultID)
             {
                 this.TaskID = TaskID;
@@ -369,7 +369,8 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Issues a request to get information regarding a specific stream on the embedded
+        /// target. 
         /// </summary>
         public class GetStreamInfoReq : ICommRequest
         {
@@ -385,14 +386,15 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
 
             /// <summary>
-            /// TODO
+            /// The stream number whose information is retrieved from the embedded target
             /// </summary>
             private Int16 StreamNumber;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="StreamNumber"></param>
+            /// <param name="StreamNumber">The stream number whose information is retrieved from the 
+            /// embedded target</param>
             public GetStreamInfoReq(Int16 StreamNumber)
             {
                 this.StreamNumber = StreamNumber;
@@ -1541,77 +1543,5 @@ namespace VcuComm
             }
         }
 
-
-
-
-#if NOT_USED_AS_FAR_I_CAN_TELL
-        public class ReadVariableReq : ICommRequest
-        {
-            private UInt16 DictionaryIndex;
-
-            private ReadVariableReq()
-            {
-            }
-
-            public ReadVariableReq(UInt16 DictionaryIndex)
-            {
-                this.DictionaryIndex = DictionaryIndex;
-            }
-
-            public Byte[] GetByteArray(Boolean targetIsBigEndian)
-            {
-                DataPacketProlog dpp = new DataPacketProlog();
-
-                if (targetIsBigEndian)
-                {
-                    this.DictionaryIndex = Utils.ReverseByteOrder(this.DictionaryIndex);
-                }
-                MemoryStream ms = new MemoryStream(1024);
-                BinaryWriter bw = new BinaryWriter(ms);
-                bw.Write(this.DictionaryIndex);
-                                                        //TODO ??? check below PacketType
-                return dpp.GetByteArray(ms.ToArray(), PacketType.GET_VARIABLE_INFORMATION, ResponseType.COMMANDREQUEST, targetIsBigEndian);
-            }
-        }
-#endif
-#if NOT_USED_AS_FAR_I_CAN_TELL
-        public class GetWatchValuesReq
-        {
-            private UInt16[] WatchIndexes; //WatchSize;
-            private GetWatchValuesReq()
-            {
-            }
-
-            public GetWatchValuesReq(UInt16[] WatchIndexes)
-            {
-                this.WatchIndexes = new UInt16[WatchIndexes.Length];
-                for (UInt16 i = 0; i < WatchIndexes.Length; i++)
-                {
-                    this.WatchIndexes[i] = WatchIndexes[i];
-                }
-            }
-
-            public Byte[] GetByteArray(Boolean targetIsBigEndian)
-            {
-                DataPacketProlog dpp = new DataPacketProlog();
-
-                if (targetIsBigEndian)
-                {
-                    for (UInt16 i = 0; i < this.WatchIndexes.Length; i++)
-                    {
-                        this.WatchIndexes[i] = Utils.ReverseByteOrder(this.WatchIndexes[i]);
-                    }
-                }
-                MemoryStream ms = new MemoryStream(1024);
-                BinaryWriter bw = new BinaryWriter(ms);
-                for (UInt16 i = 0; i < this.WatchIndexes.Length; i++)
-                {
-                    bw.Write(this.WatchIndexes[i]);
-                }
-
-                return dpp.GetByteArray(ms.ToArray(), PacketType.SET_WATCH_ELEMENTS, ResponseType.COMMANDREQUEST, targetIsBigEndian);
-            }
-        }
-#endif
     }
 }

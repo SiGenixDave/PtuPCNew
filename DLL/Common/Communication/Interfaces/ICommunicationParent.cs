@@ -115,7 +115,7 @@ namespace Common.Communication
         ICommDevice CommDevice { get; }
 
         /// <summary>
-        /// TODO
+        /// Used to access watch variable info, chart data and the embedded target real time clock 
         /// </summary>
         WatchClockMarshal WatchClockMarshall { get; }
 

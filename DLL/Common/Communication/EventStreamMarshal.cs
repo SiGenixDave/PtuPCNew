@@ -287,10 +287,9 @@ namespace Common.Communication
                             // Copy all data into newly created array
                             Buffer.BlockCopy(m_FaultDataFromTarget.Buffer, Index, m_faultStorage[m_CurrentNumberOfFaults], 0, FaultSize + 2);
                         }
-                        catch (Exception ex)
+                        catch 
                         {
-                            // TODO
-                            ex.ToString();
+                            return CommunicationError.SystemException;
                         }
 
                         m_CurrentNumberOfFaults++;
@@ -346,7 +345,7 @@ namespace Common.Communication
                                                                Int16[] VariableIndex, Int16[] VariableType)
         {
 
-            // TODO: required to set values based on "out" interface which was not required when API was unmanaged; may need to revisit
+            // TODO: required to set values based on "out" interface which was not required when API was unmanaged; may need to revisit if errors occur
             NumberOfVariables = -1;
             NumberOfSamples = -1;
             SampleRate = -1;
@@ -762,7 +761,7 @@ namespace Common.Communication
                     // Make sure we don't go over destination buffer limits
                     if (destCount >= NumberOfSamples * NumberOfVariables)
                     {
-                        //TODO return E_STREAM_CORRUPT;
+                        return CommunicationError.BadResponse;
                     }
 
                     // Grab number of bytes depending on variable type
@@ -828,8 +827,7 @@ namespace Common.Communication
                             break;
 
                         default:
-                            //TODO return E_STREAM_CORRUPT;
-                            break;
+                            return CommunicationError.BadResponse;
                     }
                 }
                 // TODO DAS:Not sure why this is here and just bump the counter up by 4 for all data sizes

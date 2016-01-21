@@ -333,14 +333,9 @@ namespace Common.Communication
     public enum StopBits
     {
         /// <summary>
-        /// One stop bit. Value: 0.
+        /// One stop bit. Value: 1.
         /// </summary>
-        One = 0,
-
-        /// <summary>
-        /// One and a half stop bits. Value: 1.
-        /// </summary>
-        OnePointFive = 1,
+        One = 1,
 
         /// <summary>
         /// Two stop bits. Value: 2.
@@ -856,9 +851,14 @@ namespace Common.Communication
                 if (communicationsSetting.Protocol == Protocol.RS232)
                 {
                     m_CommDevice = new Serial();
-                    //TODO need to add a function to parse communicationsSetting to yield string below
-                    args = "COM" + communicationsSetting.PortIdentifier + ",19200,none,8,1";
-                    Debug.WriteLine(args);
+
+                    args = "COM" + communicationsSetting.PortIdentifier + "," +
+                            ((Int32)communicationsSetting.SerialCommunicationParameters.BaudRate).ToString() + "," + 
+                            communicationsSetting.SerialCommunicationParameters.Parity.ToString() + "," + 
+                            ((Int32)communicationsSetting.SerialCommunicationParameters.BitsPerCharacter).ToString() + "," +
+                            ((Int32)communicationsSetting.SerialCommunicationParameters.StopBits).ToString();
+
+
                 }
                 else if (communicationsSetting.Protocol == Protocol.TCPIP)
                 {
@@ -910,7 +910,6 @@ namespace Common.Communication
         public virtual void CloseCommunication(Protocol protocol)
         {
             CommunicationError errorCode = CommunicationError.UnknownError;
-            Debug.WriteLine("Close " + protocol);
             try
             {
                 errorCode = (CommunicationError)m_CommDevice.Close();

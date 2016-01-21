@@ -160,7 +160,7 @@ namespace VcuComm
         /// <returns>less than 0 if any failure occurs; greater than or equal to 0 if successful</returns>
         public Int32 Close()
         {
-            // TODO need to kill async threads when app closes because task lingetrs in task manager when closing
+            // TODO need to kill asynchronous threads when application closes because task lingers in task manager when closing
             // via  "x" on form
             try
             {
@@ -228,7 +228,6 @@ namespace VcuComm
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
                 m_TCPError = ProtocolPTU.Errors.InvalidURL;
                 m_ExceptionMessage = e.Message;
                 return -1;
@@ -248,7 +247,6 @@ namespace VcuComm
             {
                 if (addr.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    Debug.WriteLine("IPv4 Address: {0}", addr);
                     ipv4Addr = addr;
                     break;
                 }

@@ -324,6 +324,7 @@ namespace Bombardier.PTU.Forms
 						{
 							statusInformation.Text = Resources.TextNoTargetFoundOn + CommonConstants.Space + communicationSetting.Port.FullSpecification;
 							statusInformation.Update();
+                            System.Threading.Thread.Sleep(1500);
 							continue;
 						}
 					}
@@ -347,6 +348,9 @@ namespace Bombardier.PTU.Forms
 				foreach (string URI in Parameter.URIList)
 				{
 					communicationSetting.PortIdentifier = URI;
+
+                    statusInformation.Text = Resources.TextSearchingForTargetOn + CommonConstants.Space + communicationSetting.PortIdentifier;
+                    statusInformation.Update();
 					// Instantiate the appropriate type of communication interface.
 					communicationInterface = new CommunicationApplication();
 					try
@@ -363,8 +367,9 @@ namespace Bombardier.PTU.Forms
 					}
 					catch (Exception)
 					{
-						statusInformation.Text = Resources.TextNoTargetFoundOn + CommonConstants.Space + communicationSetting.Port.Name;
+						statusInformation.Text = Resources.TextNoTargetFoundOn + CommonConstants.Space + communicationSetting.PortIdentifier;
 						statusInformation.Update();
+                        System.Threading.Thread.Sleep(1500);
 						continue;
 					}
 				}
