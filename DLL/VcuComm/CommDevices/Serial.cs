@@ -534,7 +534,11 @@ namespace VcuComm
                 if (bytesRead == 1)
                 {
                     // Verify a valid SOM
-                    if ((startOfMessage[0] != ProtocolPTU.THE_SOM) && (startOfMessage[0] != ProtocolPTU.TARGET_BIG_ENDIAN_SOM))
+                    if ((startOfMessage[0] == ProtocolPTU.THE_SOM) || (startOfMessage[0] == ProtocolPTU.TARGET_BIG_ENDIAN_SOM))
+                    {
+                        m_TargetStartOfMessage = startOfMessage[0];
+                    }
+                    else
                     {
                         m_TargetStartOfMessage = 0;
                         m_SerialError = ProtocolPTU.Errors.InvalidSOM;

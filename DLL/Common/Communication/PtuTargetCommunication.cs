@@ -54,7 +54,7 @@ namespace Common.Communication
 
             // Create the message header for a command and command type; "null" as 1st argument indicates no payload
             ProtocolPTU.DataPacketProlog dpp = new ProtocolPTU.DataPacketProlog();
-            Byte[] txMessage = dpp.GetByteArray(null, packetRequestType, ProtocolPTU.ResponseType.COMMANDREQUEST, commDevice.IsTargetBigEndian());
+            Byte[] txMessage = dpp.GetByteArray(null, packetRequestType, ProtocolPTU.ResponseType.COMMANDRESPONSE, commDevice.IsTargetBigEndian());
 
             // Send the command to the target
             Int32 errorCode = commDevice.SendMessageToTarget(txMessage);
@@ -182,7 +182,7 @@ namespace Common.Communication
 
             // Create the message header for a command and command type; "null" as 1st argument indicates no payload
             ProtocolPTU.DataPacketProlog dpp = new ProtocolPTU.DataPacketProlog();
-            Byte[] txMessage = dpp.GetByteArray(null, packetRequestType, ProtocolPTU.ResponseType.DATAREQUEST, commDevice.IsTargetBigEndian());
+            Byte[] txMessage = dpp.GetByteArray(null, packetRequestType, ProtocolPTU.ResponseType.DATARESPONSE, commDevice.IsTargetBigEndian());
 
             // Send the command to the target
             Int32 errorCode = commDevice.SendMessageToTarget(txMessage);

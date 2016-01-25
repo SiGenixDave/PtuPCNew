@@ -66,7 +66,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
             /// Id of the event log to change to
@@ -127,7 +127,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
             /// The desired chart index to retrieve; if there 8 chart channels then this
@@ -187,7 +187,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
             /// the index into the array of the desired data log
@@ -246,7 +246,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
             /// The starting fault log index to get faults from
@@ -314,7 +314,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
             /// The fault id whose history is retrieved
@@ -383,7 +383,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
             /// The stream number whose information is retrieved from the embedded target
@@ -430,7 +430,8 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Queries the embedded target about the type of variable, max and min values, chart scaling, etc.
+        /// Believe this is a legacy request and is no longer used.
         /// </summary>
         public class GetVariableInfoReq : ICommRequest
         {
@@ -443,17 +444,17 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request expects some data response
             /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.DATAREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The data dictionary index of the variable
             /// </summary>
             private UInt16 DictionaryIndex;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="DictionaryIndex"></param>
+            /// <param name="DictionaryIndex">The data dictionary index of the variable</param>
             public GetVariableInfoReq(UInt16 DictionaryIndex)
             {
                 this.DictionaryIndex = DictionaryIndex;
@@ -489,7 +490,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Updates the desired embedded target variable with a new value.
         /// </summary>
         public class SendVariableReq : ICommRequest
         {
@@ -502,22 +503,23 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The dictionary index of the variable to be updated
             /// </summary>
             private Int16 DictionaryIndex;
+            
             /// <summary>
-            /// TODO
+            /// The new variable value
             /// </summary>
             private UInt32 NewValue;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="DictionaryIndex"></param>
-            /// <param name="NewValue"></param>
+            /// <param name="DictionaryIndex">The dictionary index of the variable to be updated</param>
+            /// <param name="NewValue">The new variable value</param>
             public SendVariableReq(Int16 DictionaryIndex, UInt32 NewValue)
             {
                 this.DictionaryIndex = DictionaryIndex;
@@ -556,7 +558,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Updates the embedded target with a new car ID.
         /// </summary>
         public class SetCarIDReq : ICommRequest
         {
@@ -569,21 +571,32 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The new car ID
             /// </summary>
             private String NewCarId;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="NewCarId"></param>
+            /// <param name="NewCarId">The new car ID</param>
             public SetCarIDReq(UInt16 NewCarId)
             {
                 // TODO may have to perform a hex formatter... TBD
-                this.NewCarId = NewCarId.ToString().PadRight(11, '\0'); ;
+                this.NewCarId = NewCarId.ToString().PadRight(11, '\0');
+            }
+
+            /// <summary>
+            /// Public constructor that is the only one permitted to create this object
+            /// </summary>
+            /// <param name="NewCarId">The new car ID</param>
+            public SetCarIDReq(String NewCarId)
+            {
+                // Pad end of string with null characters and truncate to 11 chars in case 
+                // passed string was longer than 11 chars
+                this.NewCarId = NewCarId.PadRight(11, '\0').Substring(0, 11);
             }
 
             /// <summary>
@@ -617,7 +630,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Adds or changes a chart recorder output to a new variable
         /// </summary>
         public class SetChartIndexReq : ICommRequest
         {
@@ -630,23 +643,23 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The chart recorder output index
             /// </summary>
             private Byte ChartIndex;
 
             /// <summary>
-            /// TODO
+            /// The data dictionary index of the variable which will now be part of the chart output
             /// </summary>
             private Int16 VariableIndex;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="ChartIndex"></param>
-            /// <param name="VariableIndex"></param>
+            /// <param name="ChartIndex">The chart recorder output index</param>
+            /// <param name="VariableIndex">The data dictionary index of the variable which will now be part of the chart output</param>
             public SetChartIndexReq(Int16 ChartIndex, Int16 VariableIndex)
             {
                 this.ChartIndex = (Byte)ChartIndex;
@@ -686,7 +699,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Sets the chart recorder mode (full, zero, data, ramp)
         /// </summary>
         public class SetChartModeReq : ICommRequest
         {
@@ -699,17 +712,17 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The chart recorder mode (full, zero, data, ramp)
             /// </summary>
             private Byte TargetChartMode;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="TargetChartMode"></param>
+            /// <param name="TargetChartMode">The chart recorder mode (full, zero, data, ramp)</param>
             public SetChartModeReq(byte TargetChartMode)
             {
                 this.TargetChartMode = TargetChartMode;
@@ -745,7 +758,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Updates the chart scaling of the desired variable
         /// </summary>
         public class SetChartScaleReq : ICommRequest
         {
@@ -758,27 +771,29 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The dictionary index of the variable to be updated
             /// </summary>
             private Int16 DictionaryIndex;
+
             /// <summary>
-            /// TODO
+            /// The chart recorder scaling (max value)
             /// </summary>
             private Int32 MaxScale;
+            
             /// <summary>
-            /// TODO
+            /// The chart recorder scaling (min value)
             /// </summary>
             private Int32 MinScale;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="DictionaryIndex"></param>
-            /// <param name="MaxScale"></param>
-            /// <param name="MinScale"></param>
+            /// <param name="DictionaryIndex">The dictionary index of the variable to be updated</param>
+            /// <param name="MaxScale">The chart recorder scaling (max value)</param>
+            /// <param name="MinScale">The chart recorder scaling (min value)</param>
             public SetChartScaleReq(Int16 DictionaryIndex, Int32 MaxScale, Int32 MinScale)
             {
                 this.DictionaryIndex = DictionaryIndex;
@@ -833,7 +848,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -916,7 +931,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -975,7 +990,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -1064,7 +1079,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -1179,7 +1194,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -1248,7 +1263,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -1318,7 +1333,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -1385,7 +1400,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO
@@ -1464,7 +1479,7 @@ namespace VcuComm
             /// Informs the embedded PTU target that this request is a command only and expects
             /// no data response in return; only an acknowledge that the message was received
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDREQUEST;
+            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
             /// TODO

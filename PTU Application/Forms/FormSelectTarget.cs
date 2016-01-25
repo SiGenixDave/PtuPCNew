@@ -313,7 +313,7 @@ namespace Bombardier.PTU.Forms
 							if (communicationInterface.ScanPort(communicationSetting, out targetConfiguration) == true)
 							{
 								targetConfigurationList.Add(targetConfiguration);
-								listBoxTargetsFound.Items.Add(targetConfiguration.SubSystemName);
+                                listBoxTargetsFound.Items.Add(targetConfiguration.SubSystemName + " (COM" + communicationSetting.PortIdentifier.ToString() + ")");
 								listBoxTargetsFound.Update();
 								statusInformation.Text = Resources.TextTargetFoundOn + CommonConstants.Space + communicationSetting.Port.FullSpecification;
 								communicationSettingList.Add(communicationSetting);

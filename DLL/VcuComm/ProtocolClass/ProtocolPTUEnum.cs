@@ -28,16 +28,16 @@ namespace VcuComm
     public partial class ProtocolPTU
     {
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         public enum ResponseType
         {
-            COMMANDREQUEST = 1,
-            DATAREQUEST = 2,
+            COMMANDRESPONSE = 1,
+            DATARESPONSE = 2,
         }
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         public enum PacketType
         {
@@ -106,7 +106,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         public enum VariableType
         {
