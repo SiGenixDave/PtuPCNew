@@ -852,8 +852,6 @@ namespace Event.Communication
             }
         }
 
-        String eee;
-
         /// <summary>
         /// Check the current event log for new events.
         /// </summary>
@@ -874,7 +872,6 @@ namespace Event.Communication
             }
             catch (Exception ex)
             {
-                eee = ex.Message; 
                 errorCode = CommunicationError.SystemException;
                 throw new CommunicationException("CommunicationEvent.CheckFaultlogger()", errorCode);
             }
