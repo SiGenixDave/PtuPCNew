@@ -28,7 +28,10 @@ namespace VcuComm
     public partial class ProtocolPTU
     {
         /// <summary>
-        /// TODO
+        /// This information is passed to the embedded target to inform the target whether the 
+        /// request is a command request (no response besides ACK) or a data request (data message
+        /// expected). Currently, this field in the header is unused by both this application and the
+        /// embedded target but is provided for future use
         /// </summary>
         public enum ResponseType
         {
@@ -37,7 +40,9 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// This enumeration's values match exactly with those on the embedded target. These are the commands
+        /// that are used to communicate information from the embedded target. Some are unused, but are included
+        /// for the sake of completeness.
         /// </summary>
         public enum PacketType
         {
@@ -106,7 +111,9 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// This enumeration matches the enumeration type on the embedded target. When variable information
+        /// is passed back and forth between this application and the embedded target, a way of determining 
+        /// the size of the variable is sometimes needed. 
         /// </summary>
         public enum VariableType
         {

@@ -219,6 +219,7 @@ namespace Common.Communication
                 }
                 else
                 {
+                    // Typecast to a byte so that a byte is returned
                     Year = Utils.ReverseByteOrder((Byte)Year);
                 }
                 Month = Utils.ReverseByteOrder(Month);

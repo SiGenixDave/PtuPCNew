@@ -309,13 +309,6 @@ namespace Common.Communication
             // Enable Fault Logging here in case we left the while loop early
             commError = EnableFaultLogging(true);
 
-#if !DAS
-            if (commError != CommunicationError.Success)
-            {
-                commError = CommunicationError.Success;
-            }
-#endif
-
             // Update the reference parameters if all transactions went OK and at least one new fault was reecived 
             if ((commError == CommunicationError.Success) && (RemoteFaults > 0))
             {
