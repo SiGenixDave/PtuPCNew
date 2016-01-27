@@ -213,7 +213,14 @@ namespace Common.Communication
                 Hour = Utils.ReverseByteOrder(Hour);
                 Minute = Utils.ReverseByteOrder(Minute);
                 Second = Utils.ReverseByteOrder(Second);
-                Year = Utils.ReverseByteOrder(Year);
+                if (Use4DigitYearCode)
+                {
+                    Year = Utils.ReverseByteOrder(Year);
+                }
+                else
+                {
+                    Year = Utils.ReverseByteOrder((Byte)Year);
+                }
                 Month = Utils.ReverseByteOrder(Month);
                 Day = Utils.ReverseByteOrder(Day);
             }

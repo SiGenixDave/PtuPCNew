@@ -495,7 +495,7 @@ namespace Common.Communication
 
             faultnum = BitConverter.ToInt16(m_faultStorage[index], 2);
             tasknum = BitConverter.ToInt16(m_faultStorage[index], 4);
-            datalognum = BitConverter.ToInt16(m_faultStorage[index], 18);
+            datalognum = BitConverter.ToInt16(m_faultStorage[index], 16);
 
             if (m_CommDevice.IsTargetBigEndian())
             {
