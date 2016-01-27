@@ -763,7 +763,7 @@ namespace VcuComm
         public class SetChartScaleReq : ICommRequest
         {
             /// <summary>
-            /// TODO
+            /// Sets the packet type used to identify the message contents
             /// </summary>
             private const PacketType PACKET_TYPE = PacketType.SET_CHART_SCALE;
 
@@ -835,7 +835,9 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Updates the fault and trigger table on th embedded target with the desired
+        /// settings for the given fault. Either enables/disables fault logging and 
+        /// streaming for a given fault
         /// </summary>
         public class SetFaultFlagReq : ICommRequest
         {
@@ -851,29 +853,32 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// Non zero to enable data logging for the fault; zero to disable
             /// </summary>
             private Byte DatalogFlag;
+            
             /// <summary>
-            /// TODO
+            /// Non zero to enable fault logging for the fault; zero to disable
             /// </summary>
             private Byte EnableFlag;
+            
             /// <summary>
-            /// TODO
+            /// the fault id
             /// </summary>
             private Int16 FaultID;
+            
             /// <summary>
-            /// TODO
+            /// the task id of the fault parameters to update
             /// </summary>
             private Int16 TaskID;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="TaskID"></param>
-            /// <param name="FaultID"></param>
-            /// <param name="EnableFlag"></param>
-            /// <param name="DatalogFlag"></param>
+            /// <param name="TaskID">the task id of the fault parameters to update</param>
+            /// <param name="FaultID">the fault id</param>
+            /// <param name="EnableFlag">Non zero to enable fault logging for the fault; zero to disable</param>
+            /// <param name="DatalogFlag">Non zero to enable data logging for the fault; zero to disable</param>
             public SetFaultFlagReq(Int16 TaskID, Int16 FaultID, Int16 EnableFlag, Int16 DatalogFlag)
             {
                 this.TaskID = TaskID;
@@ -918,7 +923,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Enables or disables fault logging on the embedded target
         /// </summary>
         public class EnableFaultLoggingReq : ICommRequest
         {
@@ -934,14 +939,14 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// Non-zero to enable fault logging; 0 to disable fault logging
             /// </summary>
             private Byte TargetState;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="TargetState"></param>
+            /// <param name="TargetState">Non-zero to enable fault logging; 0 to disable fault logging</param>
             public EnableFaultLoggingReq(Byte TargetState)
             {
                 this.TargetState = TargetState;
@@ -977,7 +982,8 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Updates the embedded target stream information which includes the data dictionary
+        /// variable index and the variable type of the variable
         /// </summary>
         public class SetStreamInfoReq : ICommRequest
         {
@@ -993,7 +999,7 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// Maintains all of the new stream information
             /// </summary>
             private StreamInformation streamInformation;
 
@@ -1066,12 +1072,12 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Updates the embedded target's real time clock with the date and time
         /// </summary>
         public class SetTimeDateReq : ICommRequest
         {
             /// <summary>
-            /// TODO
+            /// Sets the packet type used to identify the message contents
             /// </summary>
             private const PacketType PACKET_TYPE = PacketType.SET_TIME_DATE;
 
@@ -1082,51 +1088,65 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The day of the month
             /// </summary>
             private Byte Day;
 
             /// <summary>
-            /// TODO
+            /// True if a 4 digit year is to be used; false for a 2 digit year
             /// </summary>
             private Boolean fourDigitYear;
+
             /// <summary>
-            /// TODO
+            /// The hour of the day
             /// </summary>
             private Byte Hour;
+
             /// <summary>
-            /// TODO
+            /// The minute of the hour
             /// </summary>
             private Byte Minute;
+
             /// <summary>
-            /// TODO
+            /// The month of the year
             /// </summary>
             private Byte Month;
+
             /// <summary>
-            /// TODO
+            /// The second of the minute
             /// </summary>
             private Byte Second;
+
             /// <summary>
-            /// TODO
+            /// The year
             /// </summary>
             private UInt16 Year;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="Hour"></param>
-            /// <param name="Minute"></param>
-            /// <param name="Second"></param>
-            /// <param name="Year"></param>
-            /// <param name="Month"></param>
-            /// <param name="Day"></param>
+            /// <param name="fourDigitYear">True if a 4 digit year is to be used; false for a 2 digit year</param>
+            /// <param name="Hour">The hour of the day</param>
+            /// <param name="Minute">The minute of the hour</param>
+            /// <param name="Second">The second of the minute</param>
+            /// <param name="Year">The year</param>
+            /// <param name="Month">The month of the year</param>
+            /// <param name="Day">The day of the month</param>
             public SetTimeDateReq(Boolean fourDigitYear, Byte Hour, Byte Minute, Byte Second, UInt16 Year, Byte Month, Byte Day)
             {
                 this.fourDigitYear = fourDigitYear;
                 this.Hour = Hour;
                 this.Minute = Minute;
                 this.Second = Second;
-                this.Year = Year;
+                if (fourDigitYear)
+                {
+                    this.Year = Year;
+                }
+                else
+                {
+                    // Just in case a 4 digit year is passed; make sure year is from 00 - 99
+                    this.Year = (UInt16)(Year % 100);
+                }
                 this.Month = Month;
                 this.Day = Day;
             }
@@ -1166,7 +1186,7 @@ namespace VcuComm
                 bw.Write(this.Second);
                 if (this.fourDigitYear)
                 {
-                    // Used to fill a boundary
+                    // Used to fill a word boundary
                     bw.Write(0x00);
                     bw.Write(this.Year);
                 }
@@ -1180,77 +1200,11 @@ namespace VcuComm
                 return dpp.GetByteArray(ms.ToArray(), PACKET_TYPE, RESPONSE_TYPE, targetIsBigEndian);
             }
         }
-        /// <summary>
-        /// TODO
-        /// </summary>
-        public class SetWatchElementReq : ICommRequest
-        {
-            /// <summary>
-            /// Sets the packet type used to identify the message contents
-            /// </summary>
-            private const PacketType PACKET_TYPE = PacketType.SET_WATCH_ELEMENT;
-
-            /// <summary>
-            /// Informs the embedded PTU target that this request is a command only and expects
-            /// no data response in return; only an acknowledge that the message was received
-            /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
-
-            /// <summary>
-            /// TODO
-            /// </summary>
-            private UInt16 DictionaryIndex;
-
-            /// <summary>
-            /// TODO
-            /// </summary>
-            private UInt16 ElementIndex;
-
-            /// <summary>
-            /// Public constructor that is the only one permitted to create this object
-            /// </summary>
-            /// <param name="ElementIndex"></param>
-            /// <param name="DictionaryIndex"></param>
-            public SetWatchElementReq(UInt16 ElementIndex, UInt16 DictionaryIndex)
-            {
-                this.ElementIndex = ElementIndex;
-                this.DictionaryIndex = DictionaryIndex;
-            }
-
-            /// <summary>
-            /// Private 0 argument constructor that forces the instantiation of this class
-            /// to use the public constructor
-            /// </summary>
-            private SetWatchElementReq()
-            {
-            }
-
-            /// <summary>
-            /// Method that formats the message going to the embedded PTU target. The format of the message
-            /// is specific to the type of request made.
-            /// </summary>
-            /// <param name="targetIsBigEndian">true if the embedded PTU target is a Big Endian machine; false otherwise</param>
-            /// <returns>ordered byte array that is to be sent to the embedded PTU target</returns>
-            public Byte[] GetByteArray(Boolean targetIsBigEndian)
-            {
-                DataPacketProlog dpp = new DataPacketProlog();
-
-                if (targetIsBigEndian)
-                {
-                    this.ElementIndex = Utils.ReverseByteOrder(this.ElementIndex);
-                    this.DictionaryIndex = Utils.ReverseByteOrder(this.DictionaryIndex);
-                }
-                MemoryStream ms = new MemoryStream(MAX_TX_STREAM_SIZE);
-                BinaryWriter bw = new BinaryWriter(ms);
-                bw.Write(this.ElementIndex);
-                bw.Write(this.DictionaryIndex);
-
-                return dpp.GetByteArray(ms.ToArray(), PACKET_TYPE, RESPONSE_TYPE, targetIsBigEndian);
-            }
-        }
+        
+       
 
         /// <summary>
-        /// TODO
+        /// Method updates the embedded target watch element list
         /// </summary>
         public class SetWatchElementsReq : ICommRequest
         {
@@ -1266,14 +1220,16 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// An array of data dictionary indexes of watch variables to be reported from the embedded
+            /// target back to this application
             /// </summary>
             private Int16[] WatchElement;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="WatchElement"></param>
+            /// <param name="WatchElement">An array of data dictionary indexes of watch variables to be 
+            /// reported from the embedded target back to this application</param>
             public SetWatchElementsReq(Int16[] WatchElement)
             {
                 this.WatchElement = new Int16[WatchElement.Length];
@@ -1320,7 +1276,7 @@ namespace VcuComm
         }
 
         /// <summary>
-        /// TODO
+        /// Used to request an update of all watch variable values from the embedded target
         /// </summary>
         public class UpdateWatchElementsReq : ICommRequest
         {
@@ -1330,20 +1286,20 @@ namespace VcuComm
             private const PacketType PACKET_TYPE = PacketType.UPDATE_WATCH_ELEMENTS;
 
             /// <summary>
-            /// Informs the embedded PTU target that this request is a command only and expects
-            /// no data response in return; only an acknowledge that the message was received
+            /// Informs the embedded PTU target that this request expects some data response
+            /// in return
             /// </summary>
-            private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
+            private const ResponseType RESPONSE_TYPE = ResponseType.DATARESPONSE;
 
             /// <summary>
-            /// TODO
+            /// Not used by embedded target, legacy
             /// </summary>
             private Int16 ForceFullUpdate;
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="ForceFullUpdate"></param>
+            /// <param name="ForceFullUpdate">Not used by embedded target, legacy</param>
             public UpdateWatchElementsReq(Int16 ForceFullUpdate)
             {
                 this.ForceFullUpdate = ForceFullUpdate;
@@ -1373,21 +1329,9 @@ namespace VcuComm
             }
         }
 
-
-
-#if DAS
-        public struct SelfTestCommandReq
-        {
-            public Byte CommandID;
-            public UInt16 Data;
-            public DataPacketProlog Header;
-            public UInt16[] TestSet;
-            public Byte TruckInformation;
-        }
-#endif
-
         /// <summary>
-        /// TODO
+        /// Updates the current self test command on the embedded target. This is used to enter
+        /// exit, abort, and execute self tests.
         /// </summary>
         public class SelfTestCommand : ICommRequest
         {
@@ -1403,25 +1347,26 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The command id 
             /// </summary>
             private Byte CommandId;
 
             /// <summary>
-            /// TODO
+            /// The truck id
             /// </summary>
             private Byte TruckId;
 
             /// <summary>
-            /// TODO
+            /// The data
             /// </summary>
             private UInt16 Data;
-
+            
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="ElementIndex"></param>
-            /// <param name="DictionaryIndex"></param>
+            /// <param name="CommandId">The command id</param>
+            /// <param name="TruckId">The truck id</param>
+            /// <param name="Data">The data</param>
             public SelfTestCommand(Byte CommandId, Byte TruckId, UInt16 Data)
             {
                 this.CommandId = CommandId;
@@ -1463,10 +1408,8 @@ namespace VcuComm
 
         }
 
-
-
         /// <summary>
-        /// TODO
+        /// Updates the self test list on the embedded target
         /// </summary>
         public class SelfTestUpdateListReq : ICommRequest
         {
@@ -1482,25 +1425,27 @@ namespace VcuComm
             private const ResponseType RESPONSE_TYPE = ResponseType.COMMANDRESPONSE;
 
             /// <summary>
-            /// TODO
+            /// The command id
             /// </summary>
             private Byte CommandId;
 
             /// <summary>
-            /// TODO
+            /// The number of tests in the test list
             /// </summary>
             private Int16 NumberOfTests;
 
             /// <summary>
-            /// TODO
+            /// The list of tests to be executed
             /// </summary>
             private Int16[] TestList;
+
 
             /// <summary>
             /// Public constructor that is the only one permitted to create this object
             /// </summary>
-            /// <param name="ElementIndex"></param>
-            /// <param name="DictionaryIndex"></param>
+            /// <param name="CommandId">The command id</param>
+            /// <param name="NumberOfTests">The number of tests in the test list</param>
+            /// <param name="TestList">The list of tests to be executed</param>
             public SelfTestUpdateListReq(Byte CommandId, Int16 NumberOfTests, Int16[] TestList)
             {
                 this.CommandId = CommandId;

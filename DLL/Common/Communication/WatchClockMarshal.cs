@@ -162,7 +162,7 @@ namespace Common.Communication
                 getEmbInfo.SoftwareVersion = Encoding.UTF8.GetString(m_RxMessage, 8, 41).Replace("\0", String.Empty);
                 getEmbInfo.CarID = Encoding.UTF8.GetString(m_RxMessage, 49, 11).Replace("\0", String.Empty);
                 getEmbInfo.SubSystemName = Encoding.UTF8.GetString(m_RxMessage, 60, 41).Replace("\0", String.Empty);
-                getEmbInfo.IdentifierString = Encoding.UTF8.GetString(m_RxMessage, 101, 5).Replace("\0", String.Empty);
+                getEmbInfo.IdentifierString = Encoding.UTF8.GetString(m_RxMessage, 101, 4).Replace("\0", String.Empty);
                 getEmbInfo.ConfigurationMask = BitConverter.ToUInt32(m_RxMessage, 106);
             }
 
@@ -327,20 +327,6 @@ namespace Common.Communication
             return commError;
         }
 
-        /// <summary>
-        /// Updates a single watch element with a new dictionary index.
-        /// </summary>
-        /// <param name="ElementIndex">the array index in the watch element</param>
-        /// <param name="DictionaryIndex">the data dictionary index of the watch element</param>
-        /// <returns>CommunicationError.Success (0) if all is well; otherwise another enumeration which is less than 0</returns>
-        public CommunicationError SetWatchElement(UInt16 ElementIndex, UInt16 DictionaryIndex)
-        {
-            ProtocolPTU.SetWatchElementReq request = new ProtocolPTU.SetWatchElementReq(ElementIndex, DictionaryIndex);
-
-            CommunicationError commError = m_PtuTargetCommunication.SendCommandToEmbedded(m_CommDevice, request);
-
-            return commError;
-        }
 
         /// <summary>
         /// Map the watch identifiers listed in <paramref name="WatchElements"/> to the watch element array monitored by the embedded target.
