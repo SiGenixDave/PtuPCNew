@@ -278,7 +278,7 @@ extern "C" INT16 WINAPI InitCommunication(INT16 Protocol, LPSTR PortNumber,
 *
 * Abstract :
 *
-*	Calls the communication termination routines.
+	Calls the communication termination routines.
 *
 * INPUTS :
 *
