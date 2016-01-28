@@ -692,9 +692,14 @@ namespace Event.Forms
         private short m_EventCount;
 
         /// <summary>
-        /// The event index of the next entry in the event log.
+        /// The event index of the newest entry in the event log.
         /// </summary>
-        private uint m_EventIndex;
+        private uint m_NewEventIndex;
+
+        /// <summary>
+        /// The event index of the newest entry in the event log.
+        /// </summary>
+        private uint m_OldEventIndex;
 
         /// <summary>
         /// Reference to the latest data stream downloaded from the VCU.
@@ -2104,7 +2109,7 @@ namespace Event.Forms
             try
             {
                 CommunicationInterface.ChangeEventLog(log);
-                CommunicationInterface.LoadEventLog(out m_EventCount, out oldIndex, out m_EventIndex);
+                CommunicationInterface.LoadEventLog(out m_EventCount, out oldIndex, out m_NewEventIndex);
             }
             catch (CommunicationException)
             {
@@ -3552,13 +3557,13 @@ namespace Event.Forms
         /// <summary>
         /// Gets or sets the event index of the next entry in the event log.
         /// </summary>
-        internal uint EventIndex
+        internal uint NewEventIndex
         {
             get
             {
                 uint result;
                 m_MutexEventIndex.WaitOne(DefaultMutexWaitDurationMs, false);
-                result = m_EventIndex;
+                result = m_NewEventIndex;
                 m_MutexEventIndex.ReleaseMutex();
                 return result;
             }
@@ -3566,7 +3571,29 @@ namespace Event.Forms
             set
             {
                 m_MutexEventIndex.WaitOne(DefaultMutexWaitDurationMs, false);
-                m_EventIndex = value;
+                m_NewEventIndex = value;
+                m_MutexEventIndex.ReleaseMutex();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the event index of the oldest entry in the event log.
+        /// </summary>
+        internal uint OldEventIndex
+        {
+            get
+            {
+                uint result;
+                m_MutexEventIndex.WaitOne(DefaultMutexWaitDurationMs, false);
+                result = m_OldEventIndex;
+                m_MutexEventIndex.ReleaseMutex();
+                return result;
+            }
+
+            set
+            {
+                m_MutexEventIndex.WaitOne(DefaultMutexWaitDurationMs, false);
+                m_OldEventIndex = value;
                 m_MutexEventIndex.ReleaseMutex();
             }
         }

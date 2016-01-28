@@ -198,6 +198,7 @@ namespace Event
                 m_CommunicationFault = false;
                 short newEventCount;
                 uint newEventIndex;
+                uint oldEventIndex;
                 while (StopThread == false)
                 {
                     if (Pause == false)
@@ -213,7 +214,8 @@ namespace Event
 
                         // Check for new events.
                         newEventCount = m_FormViewEventLog.EventCount;
-                        newEventIndex = m_FormViewEventLog.EventIndex;
+                        newEventIndex = m_FormViewEventLog.NewEventIndex;
+                        oldEventIndex = m_FormViewEventLog.OldEventIndex;
                         try
                         {
                             m_Watchdog++;
@@ -231,7 +233,7 @@ namespace Event
                                 // Close the communication Port.
                                 m_CommunicationInterface.CloseCommunication(m_CommunicationInterface.CommunicationSetting.Protocol);
 
-                                // Keep the watchdog ticking over so that the client can deteremine whether the port has locked. 
+                                // Keep the watchdog ticking over so that the client can determine whether the port has locked. 
                                 do
                                 {
                                     m_Watchdog++;
@@ -297,55 +299,61 @@ namespace Event
                         }                        
 #else
                         // Check whether any new events have been triggered.
-                        if (newEventIndex != m_FormViewEventLog.EventIndex)
+                        if (newEventIndex != m_FormViewEventLog.NewEventIndex)
                         {
-                            // Yes, new events have been triggered. Check for case of a wraparound of the uint index value.
-                            if (newEventIndex > m_FormViewEventLog.EventIndex)
+                            short evIndex = 0;
+                            short newEvents = (short)(newEventCount - m_FormViewEventLog.EventCount);
+                            
+                            if (newEvents == 0)
                             {
-                                // No wraparound of the uint index value, process normally.
-                                // Download the new events and add them to the DataGridView control.
-                                List<EventRecord> eventRecordList = new List<EventRecord>();
+                                // Log was full and is now flushing out old events
+                                evIndex = (short)(m_FormViewEventLog.EventCount + (newEventIndex - m_FormViewEventLog.NewEventIndex));
+                                newEvents = (short)(newEventIndex - m_FormViewEventLog.NewEventIndex); 
+                            }
+                            else
+                            {
+                                evIndex = (short)(newEventCount - 1);
+                            }
 
-                                // Load the retrieved event records into the list.
-                                EventRecord eventRecord;
-                                for (short eventIndex = (short)m_FormViewEventLog.EventIndex; eventIndex < (short)newEventIndex; eventIndex++)
+                            // No wraparound of the uint index value, process normally.
+                            // Download the new events and add them to the DataGridView control.
+                            List<EventRecord> eventRecordList = new List<EventRecord>();
+
+                            // Load the retrieved event records into the list.
+                            EventRecord eventRecord;
+                            for (short eventIndex = evIndex; eventIndex < newEventCount; eventIndex++)
+                            {
+                                try
                                 {
-                                    try
-                                    {
-                                        CommunicationInterface.GetEventRecord(m_FormViewEventLog.Log, eventIndex, out eventRecord);
+                                    CommunicationInterface.GetEventRecord(m_FormViewEventLog.Log, evIndex, out eventRecord);
 
-                                        // If the event record cannot be found, continue.
-                                        if (eventRecord == null)
-                                        {
-                                            continue;
-                                        }
-
-                                        eventRecord.CarIdentifier = FileHeader.HeaderCurrent.TargetConfiguration.CarIdentifier;
-                                    }
-                                    catch (CommunicationException)
+                                    // If the event record cannot be found, continue.
+                                    if (eventRecord == null)
                                     {
                                         continue;
                                     }
 
-                                    // Store the record retrieved from the VCU.
-                                    eventRecordList.Add(eventRecord);
-                                    m_FormViewEventLog.EventRecordList.Add(eventRecord);
+                                    eventRecord.CarIdentifier = FileHeader.HeaderCurrent.TargetConfiguration.CarIdentifier;
+                                }
+                                catch (CommunicationException)
+                                {
+                                    continue;
                                 }
 
-                                m_FormViewEventLog.EventCount += (short)(newEventIndex - m_FormViewEventLog.EventIndex);
-                                m_FormViewEventLog.EventIndex = newEventIndex;
-
-                                // Update the DataGridView control in a thread safe way.
-                                m_FormViewEventLog.Invoke(new AddListDelegate(m_FormViewEventLog.AddList), new object[] { eventRecordList });
-
-                                // Hold the thread until the invoked method has completed.
-                                m_FormViewEventLog.m_MutexDataGridView.WaitOne(DefaultMutexWaitDurationMs, false);
-                                m_FormViewEventLog.m_MutexDataGridView.ReleaseMutex();
+                                // Store the record retrieved from the VCU.
+                                eventRecordList.Add(eventRecord);
+                                m_FormViewEventLog.EventRecordList.Add(eventRecord);
                             }
-                            else
-                            {
-                                // TODO - ThreadPollEvent.Run(). Wraparound of the uint index value, requires special processing.
-                            }
+
+                            m_FormViewEventLog.EventCount += (short)(newEventIndex - m_FormViewEventLog.NewEventIndex);
+                            m_FormViewEventLog.NewEventIndex = newEventIndex;
+
+                            // Update the DataGridView control in a thread safe way.
+                            m_FormViewEventLog.Invoke(new AddListDelegate(m_FormViewEventLog.AddList), new object[] { eventRecordList });
+
+                            // Hold the thread until the invoked method has completed.
+                            m_FormViewEventLog.m_MutexDataGridView.WaitOne(DefaultMutexWaitDurationMs, false);
+                            m_FormViewEventLog.m_MutexDataGridView.ReleaseMutex();
                         }
 #endif
                     }

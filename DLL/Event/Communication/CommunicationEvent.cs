@@ -870,7 +870,7 @@ namespace Event.Communication
                 m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
                 errorCode = m_EventStreamMarshal.CheckFaultlogger(ref eventCount, ref newIndex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 errorCode = CommunicationError.SystemException;
                 throw new CommunicationException("CommunicationEvent.CheckFaultlogger()", errorCode);
