@@ -550,9 +550,10 @@ namespace Event.Communication
         /// </summary>
         /// <param name="eventCount">The number of new events that have been added to the event log.</param>
         /// <param name="newIndex">The new index of the latest event.</param>
+        /// <param name="newEventsLogged">TODO</param>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CheckFaultlogger() method is not 
         /// CommunicationError.Success.</exception>
-        public void CheckFaultLogger(ref short eventCount, ref uint newIndex)
+        public void CheckFaultLogger(ref short eventCount, ref uint newIndex, ref uint newEventsLogged)
         {
             eventCount = 1;
             newIndex = 0;

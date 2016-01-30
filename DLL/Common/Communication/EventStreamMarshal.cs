@@ -26,6 +26,7 @@
 
 using System;
 using VcuComm;
+using System.Collections.Generic;
 
 namespace Common.Communication
 {
@@ -99,7 +100,7 @@ namespace Common.Communication
         /// and events are usually different sizes, the size of each individual array is dynamically
         /// allocated based on the fault size
         /// </summary>
-        private Byte[][] m_faultStorage = new Byte[MAX_NUM_FAULTS][];
+        private List<Byte[]> m_FaultStorage = new List<Byte[]>();
 
         /// <summary>
         /// Object used to handle the standard embedded target communication protocol
@@ -188,6 +189,9 @@ namespace Common.Communication
             return commError;
         }
 
+        //TODO need to add a 3rd parameter that returns the number of new events just logged so as to reduce the complication on the
+        // formevent view side
+
         /// <summary>
         /// This method is invoked when polling the embedded target for any new events that have occurred while displaying 
         /// event screen. 
@@ -196,12 +200,11 @@ namespace Common.Communication
         /// embedded target has changed since the last poll</param>
         /// <param name="orig_new">the most recent fault index from the embedded target</param>
         /// <returns>CommunicationError.Success (0) if all is well; otherwise another enumeration which is less than 0</returns>
-        public CommunicationError CheckFaultlogger(ref Int16 PassedNumOfFaults, ref UInt32 orig_new)
+        public CommunicationError CheckFaultlogger(ref Int16 PassedNumOfFaults, ref UInt32 orig_new, ref UInt32 newEventsLogged)
         {
             // Set default values
             UInt32 OldestIndex = EMPTY_FAULT_BUFFER;
             UInt32 NewestIndex = EMPTY_FAULT_BUFFER;
-            Int16 RemoteFaults = -1;
             CommunicationError commError;
             UInt32 FaultIndex;
 
@@ -235,20 +238,26 @@ namespace Common.Communication
                 // Check if Fault Log is Empty
                 if ((NewestIndex == EMPTY_FAULT_BUFFER) && (OldestIndex == EMPTY_FAULT_BUFFER))
                 {
-                    RemoteFaults = 0;
                     break;
                 }
 
                 
                 // Compute number of Faults; there may not be any in which case RemoteFaults = 0
-                RemoteFaults = (Int16)(NewestIndex - FaultIndex + 1);
-                if (RemoteFaults == 0)
+                newEventsLogged = (UInt32)(NewestIndex - FaultIndex + 1);
+                if (newEventsLogged == 0)
                 {
                     break;
                 }
 
+                // If the code reaches this point without "breaking", new events have been recorded
+                // by the embedded target. However, if RemoteFaults == PassedNumOfFaults, that means
+                // the embedded target buffer is full and at least 1 old fault has been flushed. 
+                // If the flag is true, then the faults at the beginning of the fault list will be removed
+                Int16 totalRemoteFaults = (Int16)((NewestIndex - OldestIndex) + 1);
+
+
                 // Get the newest fault information
-                commError = GetFaultData((UInt32)FaultIndex, (UInt16)RemoteFaults);
+                commError = GetFaultData((UInt32)FaultIndex, (UInt16)newEventsLogged);
                 
                 // Verify the transaction was successful and that at least one fault was returned
                 if (commError != CommunicationError.Success)
@@ -280,12 +289,13 @@ namespace Common.Communication
                     {
                         try
                         {
+                            Byte[] tempFaultBuffer = new Byte[FaultSize + 2];
+                            // Copy all data into newly created array
+                            Buffer.BlockCopy(m_FaultDataFromTarget.Buffer, Index, tempFaultBuffer, 0, FaultSize + 2);
+
                             // Add new member with size "FaultSize" to jagged 2 dimensional array (the "FaultSize" is also part of the fault data;
                             // thus the + 2)
-                            m_faultStorage[m_CurrentNumberOfFaults] = new Byte[FaultSize + 2];
-
-                            // Copy all data into newly created array
-                            Buffer.BlockCopy(m_FaultDataFromTarget.Buffer, Index, m_faultStorage[m_CurrentNumberOfFaults], 0, FaultSize + 2);
+                            m_FaultStorage.Add(tempFaultBuffer);                        
                         }
                         catch 
                         {
@@ -304,13 +314,22 @@ namespace Common.Communication
                     // Increment the Index to point to the size of the next fault
                     Index += (FaultSize + 2);
                 }
+
+                while (m_FaultStorage.Count > totalRemoteFaults)
+                {
+                    m_FaultStorage.RemoveAt(0);
+                    m_CurrentNumberOfFaults--;
+                }
+            
             } while (false);
 
             // Enable Fault Logging here in case we left the while loop early
             commError = EnableFaultLogging(true);
 
+
+
             // Update the reference parameters if all transactions went OK and at least one new fault was reecived 
-            if ((commError == CommunicationError.Success) && (RemoteFaults > 0))
+            if ((commError == CommunicationError.Success) && (newEventsLogged > 0))
             {
                 orig_new = NewestIndex;
                 PassedNumOfFaults = m_CurrentNumberOfFaults;
@@ -327,6 +346,9 @@ namespace Common.Communication
         {
             CommunicationError commError =
                 m_PtuTargetCommunication.SendCommandToEmbedded(m_CommDevice, ProtocolPTU.PacketType.CLEAR_EVENTLOG);
+
+            m_CurrentNumberOfFaults = 0;
+            m_FaultStorage.Clear();
 
             return commError;
         }
@@ -449,12 +471,12 @@ namespace Common.Communication
 
             const UInt16 DATE_OFFSET_IN_FAULT_LOG = 10;
 
-            Byte hour = m_faultStorage[index][DATE_OFFSET_IN_FAULT_LOG];
-            Byte minute = m_faultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 1];
-            Byte second = m_faultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 2];
-            Byte month = m_faultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 3];
-            Byte day = m_faultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 4];
-            Byte year = m_faultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 5];
+            Byte hour = m_FaultStorage[index][DATE_OFFSET_IN_FAULT_LOG];
+            Byte minute = m_FaultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 1];
+            Byte second = m_FaultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 2];
+            Byte month = m_FaultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 3];
+            Byte day = m_FaultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 4];
+            Byte year = m_FaultStorage[index][DATE_OFFSET_IN_FAULT_LOG + 5];
 
             if (m_CommDevice.IsTargetBigEndian())
             {
@@ -486,9 +508,9 @@ namespace Common.Communication
                 Fltdate = "N/A";
             }
 
-            faultnum = BitConverter.ToInt16(m_faultStorage[index], 2);
-            tasknum = BitConverter.ToInt16(m_faultStorage[index], 4);
-            datalognum = BitConverter.ToInt16(m_faultStorage[index], 16);
+            faultnum = BitConverter.ToInt16(m_FaultStorage[index], 2);
+            tasknum = BitConverter.ToInt16(m_FaultStorage[index], 4);
+            datalognum = BitConverter.ToInt16(m_FaultStorage[index], 16);
 
             if (m_CommDevice.IsTargetBigEndian())
             {
@@ -525,7 +547,7 @@ namespace Common.Communication
                 switch ((ProtocolPTU.VariableType)VariableType[var])
                 {
                     case ProtocolPTU.VariableType.UINT_8_TYPE:
-                        Byte bVal = m_faultStorage[FaultIndex][variableOffset];
+                        Byte bVal = m_FaultStorage[FaultIndex][variableOffset];
                         if (m_CommDevice.IsTargetBigEndian())
                         {
                             bVal = Utils.ReverseByteOrder(bVal);
@@ -535,7 +557,7 @@ namespace Common.Communication
                         break;
 
                     case ProtocolPTU.VariableType.INT_8_TYPE:
-                        SByte signedByte = (SByte)m_faultStorage[FaultIndex][variableOffset];
+                        SByte signedByte = (SByte)m_FaultStorage[FaultIndex][variableOffset];
                         if (m_CommDevice.IsTargetBigEndian())
                         {
                             signedByte = Utils.ReverseByteOrder(signedByte);
@@ -545,7 +567,7 @@ namespace Common.Communication
                         break;
 
                     case ProtocolPTU.VariableType.UINT_16_TYPE:
-                        UInt16 u16 = BitConverter.ToUInt16(m_faultStorage[FaultIndex], variableOffset);
+                        UInt16 u16 = BitConverter.ToUInt16(m_FaultStorage[FaultIndex], variableOffset);
                         if (m_CommDevice.IsTargetBigEndian())
                         {
                             u16 = Utils.ReverseByteOrder(u16);
@@ -555,7 +577,7 @@ namespace Common.Communication
                         break;
 
                     case ProtocolPTU.VariableType.INT_16_TYPE:
-                        Int16 i16 = BitConverter.ToInt16(m_faultStorage[FaultIndex], variableOffset);
+                        Int16 i16 = BitConverter.ToInt16(m_FaultStorage[FaultIndex], variableOffset);
                         if (m_CommDevice.IsTargetBigEndian())
                         {
                             i16 = Utils.ReverseByteOrder(i16);
@@ -565,7 +587,7 @@ namespace Common.Communication
                         break;
 
                     case ProtocolPTU.VariableType.UINT_32_TYPE:
-                        UInt32 u32 = BitConverter.ToUInt32(m_faultStorage[FaultIndex], variableOffset);
+                        UInt32 u32 = BitConverter.ToUInt32(m_FaultStorage[FaultIndex], variableOffset);
                         if (m_CommDevice.IsTargetBigEndian())
                         {
                             u32 = Utils.ReverseByteOrder(u32);
@@ -575,7 +597,7 @@ namespace Common.Communication
                         break;
 
                     case ProtocolPTU.VariableType.INT_32_TYPE:
-                        Int32 i32 = BitConverter.ToInt32(m_faultStorage[FaultIndex], variableOffset);
+                        Int32 i32 = BitConverter.ToInt32(m_FaultStorage[FaultIndex], variableOffset);
                         if (m_CommDevice.IsTargetBigEndian())
                         {
                             i32 = Utils.ReverseByteOrder(i32);
@@ -910,6 +932,9 @@ namespace Common.Communication
         {
             CommunicationError commError = m_PtuTargetCommunication.SendCommandToEmbedded(m_CommDevice, ProtocolPTU.PacketType.INITIALIZE_EVENTLOG);
 
+            m_CurrentNumberOfFaults = 0;
+            m_FaultStorage.Clear();
+
             return commError;
         }
 
@@ -1005,10 +1030,13 @@ namespace Common.Communication
                         // Allocate jagged array dynamically and store fault data there
                         if (faultSize < MAX_FAULT_SIZE_BYTES && faultSize > 0)
                         {
-                            // Add new member with size "FaultSize" to jagged 2 dimensional array
-                            m_faultStorage[m_CurrentNumberOfFaults] = new Byte[faultSize + 2];
+                            Byte[] tempFaultBufffer = new Byte[faultSize + 2]; 
+
                             // Copy all data into newly created array
-                            Buffer.BlockCopy(m_FaultDataFromTarget.Buffer, index, m_faultStorage[m_CurrentNumberOfFaults], 0, faultSize + 2);
+                            Buffer.BlockCopy(m_FaultDataFromTarget.Buffer, index, tempFaultBufffer, 0, faultSize + 2);
+
+                            // Add new member with size "FaultSize" to jagged 2 dimensional array
+                            m_FaultStorage.Add(tempFaultBufffer);
 
                             m_CurrentNumberOfFaults++;
                         }

@@ -174,7 +174,8 @@ namespace Common.Communication
         /// </summary>
         /// <param name="eventCount">The number of new events that have been added to the event log.</param>
         /// <param name="newIndex">The new index of the latest event.</param>
-        void CheckFaultLogger(ref short eventCount, ref uint newIndex);
+        /// <param name="newEventsLogged">TODO</param>
+        void CheckFaultLogger(ref short eventCount, ref uint newIndex, ref uint newEventsLogged);
 
         /// <summary>
         /// Get the status of the flags that control: (a) whether the event type is enabled and (b) whether the event type triggers the recoding of a data stream. 

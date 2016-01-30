@@ -446,7 +446,7 @@ namespace Event.Forms
     /// A delegate for a method that has generic list of event records as an input parameter and does not return a value.
     /// </summary>
     /// <param name="eventRecordList">The list of <c>EventRecord</c> types.</param>
-    public delegate void AddListDelegate(List<EventRecord> eventRecordList);
+    public delegate void AddListDelegate(List<EventRecord> eventRecordList, uint eventsToRemove);
     #endregion --- Delegates ---
 
     /// <summary>
@@ -1489,7 +1489,7 @@ namespace Event.Forms
                 }
                 else
                 {
-                    AddList(EventRecordList);
+                    AddList(EventRecordList, 0);
                     m_DataGridViewEventLog.Sort(m_DataGridViewEventLog.Columns[ColumnIndexDate], ListSortDirection.Descending);
 
                     // Simulate a SelectionChanged event in order to display the event variables associated with row 1 of the selected log.
@@ -2160,7 +2160,7 @@ namespace Event.Forms
         /// Add the specified records to the <c>DataGridView</c> control. If the specified list does not contain any records no action will be taken.
         /// </summary>
         /// <remarks>De-registers the <c>SelectionChanged</c> event handler while the rows are being added.</remarks>
-        internal void AddList(List<EventRecord> eventRecordList)
+        internal void AddList(List<EventRecord> eventRecordList, uint eventsToRemove)
         {
             // Skip, if the Dispose() method has been called.
             if (IsDisposed)
@@ -2186,6 +2186,21 @@ namespace Event.Forms
             // Ensure that the SelectionChanged event is not triggered as a result of updating the rows of the DataGridView control.
             m_DataGridViewEventLog.SelectionChanged -= new EventHandler(m_DataGridViewEventLog_SelectionChanged);
             m_DataGridViewEventLog.SuspendLayout();
+
+            for (short eventIndex = 0; eventIndex < eventsToRemove; eventIndex++)
+            {
+                if (m_DataGridViewEventLog.SortedColumn == null || m_DataGridViewEventLog.SortOrder == SortOrder.Descending)
+                {
+                    // Delete rows in the DataGridView control if the event log is flushing out old events
+                    m_DataGridViewEventLog.Rows.RemoveAt(m_DataGridViewEventLog.Rows.Count - 1);
+                }
+                else
+                {
+                    // Delete rows in the DataGridView control if the event log is flushing out old events
+                    m_DataGridViewEventLog.Rows.RemoveAt(0);
+                }
+            }
+
 
             // Add the specified list of event records to the DataGridView control.
             EventRecord eventRecord;
@@ -2218,6 +2233,7 @@ namespace Event.Forms
 
                 m_DataGridViewEventLog.Sort(m_DataGridViewEventLog.SortedColumn, listSortDirection);
             }
+
 
             m_DataGridViewEventLog.PerformLayout();
             m_DataGridViewEventLog.Update();
@@ -2943,7 +2959,7 @@ namespace Event.Forms
 
             // Retrieve and display the current event log in preparation for new events.
             EventRecordList = GetEventLog(m_Log);
-            AddList(EventRecordList);
+            AddList(EventRecordList, 0);
 
             // -------------------------------------------------------------------------
             // Display the event variable list if the list contains one or more entries.
@@ -3266,7 +3282,7 @@ namespace Event.Forms
 
             // Retrieve and display the current event log in preparation for new events.
             EventRecordList = GetEventLog(m_Log);
-            AddList(EventRecordList);
+            AddList(EventRecordList, 0);
 
             // Disable the Save function key and either the Clear only, or the Clear and Initialize function keys, depending upon which function key was selected.
             // These keys will remain disabled until a new event is detected.
@@ -3356,6 +3372,8 @@ namespace Event.Forms
             {
                 EventRecordList.Clear();
             }
+            
+            InformationLabel3.Text = 0.ToString();
 
             Update();
         }

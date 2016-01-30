@@ -196,16 +196,16 @@ namespace Event
             try
             {
                 m_CommunicationFault = false;
-                short newEventCount;
+                short currentEventCount;
                 uint newEventIndex;
-                uint oldEventIndex;
+                uint newEventsLogged;
                 while (StopThread == false)
                 {
                     if (Pause == false)
                     {
                         PauseFeedback = false;
                         m_PollScheduler.Wait(IntervalMsEventUpdate);
-                        newEventCount = 0;
+                        currentEventCount = 0;
                         if (Pause == true)
                         {
                             m_Watchdog++;
@@ -213,13 +213,13 @@ namespace Event
                         }
 
                         // Check for new events.
-                        newEventCount = m_FormViewEventLog.EventCount;
+                        currentEventCount = m_FormViewEventLog.EventCount;
                         newEventIndex = m_FormViewEventLog.NewEventIndex;
-                        oldEventIndex = m_FormViewEventLog.OldEventIndex;
+                        newEventsLogged = 0;
                         try
                         {
                             m_Watchdog++;
-                            CommunicationInterface.CheckFaultLogger(ref newEventCount, ref newEventIndex);
+                            CommunicationInterface.CheckFaultLogger(ref currentEventCount, ref newEventIndex, ref newEventsLogged);
                             m_ReadTimeoutCountdown = ReadTimeoutCountdown;
                         }
                         catch(CommunicationException)
@@ -299,21 +299,41 @@ namespace Event
                         }                        
 #else
                         // Check whether any new events have been triggered.
-                        if (newEventIndex != m_FormViewEventLog.NewEventIndex)
+                        if (newEventsLogged > 0)
                         {
+                            short eventCountDiff = (short)(currentEventCount - m_FormViewEventLog.EventCount);
+                            short newIndexDiff = (short)(newEventIndex - m_FormViewEventLog.NewEventIndex);
+
+                            if (m_FormViewEventLog.NewEventIndex == uint.MaxValue)
+                            {
+                                newIndexDiff--;
+                            }
+
                             short evIndex = 0;
-                            short newEvents = (short)(newEventCount - m_FormViewEventLog.EventCount);
-                            
-                            if (newEvents == 0)
+                            Boolean flushOldEvents = false;
+                            uint eventsToFlush = 0;
+                            // if these calculations are equal, that means at least 1 new event was logged and that
+                            // the event log buffer hasn't started flushing old events
+                            if (eventCountDiff == newIndexDiff)
+                            {
+                                evIndex = (short)(m_FormViewEventLog.EventCount);
+                            }
+                            else 
                             {
                                 // Log was full and is now flushing out old events
-                                evIndex = (short)(m_FormViewEventLog.EventCount + (newEventIndex - m_FormViewEventLog.NewEventIndex));
-                                newEvents = (short)(newEventIndex - m_FormViewEventLog.NewEventIndex); 
+                                flushOldEvents = true;
+                                evIndex = (short)(currentEventCount - newIndexDiff); 
+                                if (eventCountDiff != 0)
+                                {
+                                    eventsToFlush = (uint)(newIndexDiff - eventCountDiff);
+
+                                }
+                                else
+                                {
+                                    eventsToFlush = (uint)(newIndexDiff);
+                                }
                             }
-                            else
-                            {
-                                evIndex = (short)(newEventCount - 1);
-                            }
+
 
                             // No wraparound of the uint index value, process normally.
                             // Download the new events and add them to the DataGridView control.
@@ -321,11 +341,12 @@ namespace Event
 
                             // Load the retrieved event records into the list.
                             EventRecord eventRecord;
-                            for (short eventIndex = evIndex; eventIndex < newEventCount; eventIndex++)
+                            uint flushLocal = eventsToFlush;
+                            for (short eventIndex = evIndex; eventIndex < currentEventCount; eventIndex++)
                             {
                                 try
                                 {
-                                    CommunicationInterface.GetEventRecord(m_FormViewEventLog.Log, evIndex, out eventRecord);
+                                    CommunicationInterface.GetEventRecord(m_FormViewEventLog.Log, eventIndex, out eventRecord);
 
                                     // If the event record cannot be found, continue.
                                     if (eventRecord == null)
@@ -340,16 +361,22 @@ namespace Event
                                     continue;
                                 }
 
+                                if (flushLocal != 0)
+                                {
+                                    m_FormViewEventLog.EventRecordList.RemoveAt(0);
+                                    flushLocal--;
+                                }
+
                                 // Store the record retrieved from the VCU.
                                 eventRecordList.Add(eventRecord);
                                 m_FormViewEventLog.EventRecordList.Add(eventRecord);
                             }
 
-                            m_FormViewEventLog.EventCount += (short)(newEventIndex - m_FormViewEventLog.NewEventIndex);
+                            m_FormViewEventLog.EventCount = currentEventCount;
                             m_FormViewEventLog.NewEventIndex = newEventIndex;
 
                             // Update the DataGridView control in a thread safe way.
-                            m_FormViewEventLog.Invoke(new AddListDelegate(m_FormViewEventLog.AddList), new object[] { eventRecordList });
+                            m_FormViewEventLog.Invoke(new AddListDelegate(m_FormViewEventLog.AddList), new object[] { eventRecordList, eventsToFlush });
 
                             // Hold the thread until the invoked method has completed.
                             m_FormViewEventLog.m_MutexDataGridView.WaitOne(DefaultMutexWaitDurationMs, false);

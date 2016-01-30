@@ -859,7 +859,7 @@ namespace Event.Communication
         /// <param name="newIndex">The new index of the latest event.</param>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CheckFaultlogger() method is not 
         /// CommunicationError.Success.</exception>
-        public void CheckFaultLogger(ref short eventCount, ref uint newIndex)
+        public void CheckFaultLogger(ref short eventCount, ref uint newIndex, ref uint newEventsLogged)
         {
             Debug.Assert(m_MutexCommuncationInterface != null, "CommunicationEvent.CheckFaultlogger() - [m_MutexCommuncationInterface != null]");
 
@@ -868,7 +868,7 @@ namespace Event.Communication
             try
             {
                 m_MutexCommuncationInterface.WaitOne(DefaultMutexWaitDurationMs, false);
-                errorCode = m_EventStreamMarshal.CheckFaultlogger(ref eventCount, ref newIndex);
+                errorCode = m_EventStreamMarshal.CheckFaultlogger(ref eventCount, ref newIndex, ref newEventsLogged);
             }
             catch (Exception)
             {
