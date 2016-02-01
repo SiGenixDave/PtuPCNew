@@ -536,7 +536,7 @@
     <value>The workset file is read-only. Please set the attribute to read/write.</value>
   </data>
   <data name="ConnectionStringDataDictionary" xml:space="preserve">
-    <value>Provider=Microsoft.Jet.OLEDB.4.0; Data Source =</value>
+    <value>Provider=microsoft.ace.oledb.12.0; Data Source =</value>
   </data>
   <data name="NameConfigureWorksetsWatchWindowMenuOption" xml:space="preserve">
     <value>Watch Window</value>
