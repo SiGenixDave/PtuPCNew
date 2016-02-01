@@ -304,13 +304,13 @@ namespace Event
                             short eventCountDiff = (short)(currentEventCount - m_FormViewEventLog.EventCount);
                             short newIndexDiff = (short)(newEventIndex - m_FormViewEventLog.NewEventIndex);
 
+                            // Check for events that have just been logged into an empty fault log
                             if (m_FormViewEventLog.NewEventIndex == uint.MaxValue)
                             {
                                 newIndexDiff--;
                             }
 
                             short evIndex = 0;
-                            Boolean flushOldEvents = false;
                             uint eventsToFlush = 0;
                             // if these calculations are equal, that means at least 1 new event was logged and that
                             // the event log buffer hasn't started flushing old events
@@ -321,7 +321,6 @@ namespace Event
                             else 
                             {
                                 // Log was full and is now flushing out old events
-                                flushOldEvents = true;
                                 evIndex = (short)(currentEventCount - newIndexDiff); 
                                 if (eventCountDiff != 0)
                                 {

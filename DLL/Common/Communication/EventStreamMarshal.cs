@@ -189,9 +189,6 @@ namespace Common.Communication
             return commError;
         }
 
-        //TODO need to add a 3rd parameter that returns the number of new events just logged so as to reduce the complication on the
-        // formevent view side
-
         /// <summary>
         /// This method is invoked when polling the embedded target for any new events that have occurred while displaying 
         /// event screen. 
@@ -241,9 +238,18 @@ namespace Common.Communication
                     break;
                 }
 
-                
-                // Compute number of Faults; there may not be any in which case RemoteFaults = 0
-                newEventsLogged = (UInt32)(NewestIndex - FaultIndex + 1);
+                // Handle index wrapping from 65535 to 0
+                if (NewestIndex < (UInt32)(FaultIndex - 1))
+                {
+                    newEventsLogged = (UInt32)(NewestIndex - (short)(FaultIndex - 1));
+                }
+                else
+                {
+                    // Compute number of Faults; there may not be any in which case newEventsLogged = 0
+                    newEventsLogged = (UInt32)(NewestIndex - FaultIndex + 1);
+                }
+
+
                 if (newEventsLogged == 0)
                 {
                     break;
@@ -257,7 +263,7 @@ namespace Common.Communication
 
 
                 // Get the newest fault information
-                commError = GetFaultData((UInt32)FaultIndex, (UInt16)newEventsLogged);
+                commError = GetFaultData((UInt32)(FaultIndex % 65536), (UInt16)newEventsLogged);
                 
                 // Verify the transaction was successful and that at least one fault was returned
                 if (commError != CommunicationError.Success)
@@ -325,7 +331,6 @@ namespace Common.Communication
 
             // Enable Fault Logging here in case we left the while loop early
             commError = EnableFaultLogging(true);
-
 
 
             // Update the reference parameters if all transactions went OK and at least one new fault was reecived 
