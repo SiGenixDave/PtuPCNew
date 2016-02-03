@@ -205,7 +205,7 @@ namespace VcuComm
         public Int32 Open(String commaDelimitedOptions)
         {
             String url;
-            IPHostEntry ipHost;
+            IPAddress []ipAddress;
 
             // There are no other options supported except passing the URL (could be IP address or
             // IPTCOM address)
@@ -224,7 +224,7 @@ namespace VcuComm
             // Attempt to resolve the URL to an IP address
             try
             {
-                ipHost = Dns.GetHostEntry(url);
+                ipAddress = Dns.GetHostAddresses(url);
             }
             catch (Exception e)
             {
@@ -234,7 +234,7 @@ namespace VcuComm
             }
 
             // Verify at least one IP address is resolved
-            if (ipHost.AddressList.Length == 0)
+            if (ipAddress.Length == 0)
             {
                 m_TCPError = ProtocolPTU.Errors.InvalidURL;
                 return -1;
@@ -243,7 +243,7 @@ namespace VcuComm
             // Scan through all of the resolved IP addresses and try connecting to the first
             // IP v4 address in the list; ignore the rest
             IPAddress ipv4Addr = null;
-            foreach (IPAddress addr in ipHost.AddressList)
+            foreach (IPAddress addr in ipAddress)
             {
                 if (addr.AddressFamily == AddressFamily.InterNetwork)
                 {

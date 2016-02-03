@@ -96,9 +96,11 @@ namespace Common.Communication
         private ProtocolPTU.GetFaultDataRes m_FaultDataFromTarget;
 
         /// <summary>
-        /// Jagged array to store the faults and events returned from the embedded target. Since faults
+        /// List of fault data retrieved from the embedded target. Since faults
         /// and events are usually different sizes, the size of each individual array is dynamically
-        /// allocated based on the fault size
+        /// allocated based on the fault size. A list was used instead of jagged array because list members
+        /// can be easily added but they especially can be easily removed (i.e. when the fault log has
+        /// the max number of faults).
         /// </summary>
         private List<Byte[]> m_FaultStorage = new List<Byte[]>();
 
