@@ -26,6 +26,7 @@
  *  05/24/11    1.3     K.McD           1.  Moved the SetChartMode(), SetChartIndex() and SetChartScale() methods from the ICommunicationWatch interface.
  *                                      2.  Added to DownloadChartRecorderWorkset() method.
  *
+ *  02/03/16    1.4     DAS             1.  Added ICommDevice and WatchClockMarshal accessor properties.
  */
 #endregion --- Revision History ---
 

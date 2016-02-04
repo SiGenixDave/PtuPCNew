@@ -21,7 +21,7 @@
 #region - [1.0] -
 /*
  *  01/20/2016    1.0     DAS           1.  Added to project; replaces all unmanaged calls and interfaces
- *                                          directly to PC hardware (serial port, ethernet)
+ *                                          directly to PC hardware (serial port, Ethernet)
  */
 #endregion - [1.0] -
 

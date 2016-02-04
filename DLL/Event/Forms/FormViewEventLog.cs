@@ -419,6 +419,14 @@
  *                                      to ensure horizontal alignment with the DataGridView rows.
  *                                  2.  Changed a number of member variable modifiers from public to protected.
  *                                  3.  Changed the value of the 'HeightEventControl' constant from 28 to 22 to ensure horizontal alignment with the DataGridView rows.
+ *                                  
+ * 
+ *  02/03/16    2.4     DAS       References
+ *                                  1.  Bug Fix. Updated to support real time events (events that occur while viewing the event viewer) and give the ability to 
+ *                                      add and remove events. The ability to remove events from the display is needed when the embedded target event load 
+ *                                      has reached its max.
+ *                                      
+ * 
  */
 #endregion --- Revision History ---
 

@@ -1,133 +1,137 @@
 #region --- Revision History ---
+
 /*
- * 
+ *
  *  This document and its contents are the property of Bombardier Inc. or its subsidiaries and contains confidential, proprietary information.
  *  The reproduction, distribution, utilization or the communication of this document, or any part thereof, without express authorization is strictly
  *  prohibited. Offenders will be held liable for the payment of damages.
- * 
+ *
  *  (C) 2010    Bombardier Inc. or its subsidiaries. All rights reserved.
- * 
+ *
  *  Solution:   Portable Test Unit
- * 
+ *
  *  Project:    Event
- * 
+ *
  *  File name:  CommunicationEvent.cs
- * 
+ *
  *  Revision History
  *  ----------------
  */
 
 #region - [1.0 to 1.10] -
-/* 
+
+/*
  *  Date        Version Author          Comments
  *  10/26/10    1.0     K.McD           1.  First entry into TortoiseSVN.
- * 
+ *
  *  11/17/10    1.1     K.McD           1.  Modified the ConvertToWorkset() method to take into account the changes to the Workset_t structure
  *                                          constructor.
- * 
+ *
  *  11/26/10    1.2     K.McD           1.  Added the SetDefaultStreamInformation() method.
  *                                      2.  Modified the GetStream() method to use the GetDefaultStreamInformation() method rather than the
  *                                          GetStreamInformation() method.
- * 
+ *
  *  01/06/11    1.3     K.McD           1.  Minor changes to a number of XML tags and variable names.
  *                                      2.  Modified the GetEventRecord() method to also retrieve the event variables associated with the record.
  *                                      3.  Added the CheckFaultLogger() method to check the current event log for new events.
  *                                      4.  Modified the signature associated with the ConvertToWatchFrameList() method so that the workset is passed
  *                                          rather than an array of watch identifiers.
- * 
+ *
  *  01/10/11    1.4     K.McD           1.  Modified the GetStream() method to set the data stream number to be equal to the event record index + 1.
- * 
+ *
  *  01/18/11    1.5     K.McD           1.  Bug fix SNCR001.79 - Modified the GetStream() method to use the StreamNumber property of the EventRecord
  *                                          class as the streamNumber parameter when making the call to the PTUDLL32.GetStream() method.
- * 
+ *
  *  01/26/11    1.6     K.McD           1.  Auto-modified as a result of the property name changes associated with the Log class.
  *                                      2.  Modified the XML tags and the names of a number of variables.
  *                                      3.  Modified the ConvertToWorkset() method to create a workset based on the number of parameters asssociated
  *                                          with the retrieved data stream.
  *                                      4.  Modified the GetStream() method to use the new signature associated with the DataStream_t structure.
- * 
+ *
  *  01/26/11    1.7     K.McD           1.  Bug fix SNCR001.97. Modified the ConvertToWorkset() method to use the Parameter.WatchSizeFaultLogMax
  *                                          constant to specify the entryCountMax parameter when instantiating the Workset_t structure.
- * 
+ *
  *  01/31/11    1.8     K.McD           1.  Included support for the mutex, introduced in version 1.11 of Common.dll, used to control read/write
  *                                          access to the communication port.
- * 
+ *
  *  02/14/11    1.9     K.McD           1.  Removed unused constructors.
  *                                      2.  Removed the constant StreamSize and modified the GetStreamInformation() method to use the
  *                                          Parameter.WatchSizeFaultLogMax property instead.
  *                                      3.  Included support for debug mode.
- * 
+ *
  *  02/15/11    1.9.1   K.McD           1.  Modified the GetEventRecord() method to store the stream number parameter returned from the call to
  *                                          PTUDLL32.GetaultHdr() in the StreamNumber field of the event record parameter.
- * 
+ *
  *  02/15/11    1.9.2   K.McD           1.  Bug fix - SNCR001.102. Modified the GetEventRecord() method to return a null value for the eventRecord
  *                                          parameter and to inform the user if an event corresponding to the specified LOGID, TASKID and EVENTID
  *                                          fields cannot be found in the EVENTS table of the data dictionary.
- * 
- *                                      2.  Modified the GetStream() method the use the PTUDLL32.GetStreamInformation() method rather than 
+ *
+ *                                      2.  Modified the GetStream() method the use the PTUDLL32.GetStreamInformation() method rather than
  *                                          PTUDLL32.GetDefaultStreamInformation(). This means that the current event log need not be cleared when
- *                                          updating the data stream parameters. 
- * 
+ *                                          updating the data stream parameters.
+ *
  *  02/28/11    1.9.3   K.McD           1.  Modified the CheckFaultLogger() method signature.
  *                                      2.  Modified the CheckFaultLogger() method  such that the newIndex local variable used in the call to the
  *                                          PTUDLL32.CheckFaultLogger() method in not initilalized to zero.
  *                                      3.  Corrected the text associated with a number of CommunicationException message strings.
- * 
+ *
  *  03/28/11    1.9.4   K.McD           1.  Auto-modified as a result of a number of name changes to the properties and methods of external classes.
  *                                      2.  Modified the GetStream() method to use the event description as the name of the workset.
  *                                      3.  Modified the SetDefaultStreamInformation() method to derive the watch identifier values from the old
  *                                          identifier values stored in the Column property of the workset.
- *                                      4.  Modified the ConvertToWatchFrameList() to support the modified Workset_t structure.  
+ *                                      4.  Modified the ConvertToWatchFrameList() to support the modified Workset_t structure.
  *                                      5.  Modified the ConvertToWorkset() method to support the modified Workset_t structure and to use the
  *                                          constructor of the Workset_t structure to create the new workset.
  *                                      6.  Removed the CompareWatchIdentifiers() method.
- * 
+ *
  *  04/06/11    1.9.5   K.McD           1.  Added the methods required to: (a) configure the event flags associated with the current log -
  *                                          GetFltFlagInfo(), SetFaultFlags() and (b) display the event history - GetFltHistInfo().
- * 
+ *
  *                                      2.  Modified a number of XML tags.
- *                                      
+ *
  *  07/20/11    1.9.6   K.McD           1.  Modified the signature of the constructor to use the ICommunicationParent interface.
- *  
+ *
  *  08/10/11    1.9.7   Sean.D          1.  Added debug assertions in GetDefaultStreamInformation and GetStreamInformation to ensure that there are
  *                                          not more watch variables brought in than our maximum.
- *                                          
+ *
  *  07/24/13    1.10    K.McD           1.  Automatic update when all references to the Parameter.WatchSizeFaultLogMax constant were replaced by
  *                                          references to the Parameter.WatchSizeFaultLog property.
  */
+
 #endregion - [1.0 to 1.10] -
 
 #region - [1.11] -
-/*                                         
+
+/*
  *  03/11/15    1.11    K.McD           References
  *                                      1.  Upgrade the PTU software to extend the support for the R188 project as defined in purchase order
  *                                          4800010525-CU2/19.03.2015.
- *  
- *                                          1.  Changes outlined in the email to Mark Smorul on 30th May 2014 – PTUDLL32 modifications 
+ *
+ *                                          1.  Changes outlined in the email to Mark Smorul on 30th May 2014 – PTUDLL32 modifications
  *                                              to support both 32 and 64 bit architecture.
- *                                          
+ *
  *                                      Modifications
  *                                      1.  Added delegate declarations for all of the VcuCommunication32.dll and VcuCommunication64 methods that
  *                                          are associated with the event sub-system.
- *                                          
+ *
  *                                      2.  Added member delegates for each of the delegate declarations.
- *                                          
- *                                      3.  Modified the zero parameter constructor to instantiate the delegates with either the 
- *                                          32 or 64 bit version of the corresponding method depending upon the current state of the 
+ *
+ *                                      3.  Modified the zero parameter constructor to instantiate the delegates with either the
+ *                                          32 or 64 bit version of the corresponding method depending upon the current state of the
  *                                          'Environment.Is64BitOperatingSystem' variable.
- *                                          
+ *
  *                                      5.  Modified each of the methods to check that the function delegate has been initialized prior to its use.
- *                                          
- *                                      6.  Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted, 
+ *
+ *                                      6.  Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted,
  *                                          the method was modified to a check that the Mutex has been initialized prior to its use.
- *                                          
- *                                      7.  Replaced all calls to the methods within PTUDLL32.dll with calls via function delegates. This allows 
+ *
+ *                                      7.  Replaced all calls to the methods within PTUDLL32.dll with calls via function delegates. This allows
  *                                          support for both 32 and 64 bit systems.
- *                                          
- *                                      8.  Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted, 
- *                                          a 'finally' block was added to each 'try' block to ensure that the Mutex is released even if an exception 
+ *
+ *                                      8.  Where a method uses a 'Mutex'to ensure that communication with the target hardware is not interrupted,
+ *                                          a 'finally' block was added to each 'try' block to ensure that the Mutex is released even if an exception
  *                                          occurs. The code pattern was modified to use the following template:
- *                                          
+ *
  *                                          CommunicationError errorCode = CommunicationError.UnknownError;
  *                                          try
  *                                          {
@@ -143,7 +147,7 @@
  *                                          {
  *                                              m_MutexCommuncationInterface.ReleaseMutex();
  *                                          }
- *                                          
+ *
  *                                          if (DebugMode.Enabled == true)
  *                                          {
  *                                              ...
@@ -153,19 +157,29 @@
  *                                          {
  *                                              throw new CommunicationException("<function-name>", errorCode);
  *                                          }
- *                                          
+ *
  *                                      9.  Initialized the local errorCode variable to CommunicationError.UnknownError value for each of the
  *                                          communication methods within the class.
- *                                          
+ *
  */
 #endregion - [1.11] -
+
+#region - [1.12] -
+
+/*
+ *  02/03/16    1.12    DAS           References
+ *                                      1.  Removed all unmanaged delegates since C++ code is no longer used
+ *
+ */
+
+#endregion - [1.12] -
+
 #endregion --- Revision History ---
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Common;
 using Common.Communication;
@@ -186,6 +200,7 @@ namespace Event.Communication
         private EventStreamMarshal m_EventStreamMarshal;
 
         #region --- Constants ---
+
         /// <summary>
         /// The <c>CultureInfo</c> string used to represent - english (US). Value: "en-US";
         /// </summary>
@@ -195,9 +210,11 @@ namespace Event.Communication
         /// The maximum number of columns in a workset generated from the parameters of a datastream retrieved from the VCU.
         /// </summary>
         private const short VCUDataStreamColumnCountMax = 1;
+
         #endregion --- Constants ---
 
         #region --- Constructors ---
+
         /// <summary>
         /// Initialize a new instance of the class and set the function delegates, properties and member variables to those values associated with the
         /// specified communication interface.
@@ -209,9 +226,11 @@ namespace Event.Communication
         {
             m_EventStreamMarshal = new EventStreamMarshal(communicationInterface.CommDevice);
         }
+
         #endregion --- Constructors ---
 
         #region --- Methods ---
+
         /// <summary>
         /// Change the current event log on the VCU to the specified log and initialize the: DataRecordingRate, ChangeStatus, MaxTasks and
         /// MaxEventsPerTask properties of the log structure with the values returned from the VCU.
@@ -245,7 +264,7 @@ namespace Event.Communication
             {
                 m_MutexCommuncationInterface.ReleaseMutex();
             }
-            
+
             if (DebugMode.Enabled == true)
             {
                 DebugMode.ChangeEventLog_t changeEventLog = new DebugMode.ChangeEventLog_t(logIndex, sampleIntervalMs, changeStatus, maxTasks,
@@ -394,7 +413,7 @@ namespace Event.Communication
             // ---------------------------------------------------------
             // Get the event variables associated with the event record.
             // ---------------------------------------------------------
-            
+
             // Define the data types associated with each event variable aasociated with the selected event.
             short[] types = new short[eventRecord.EventVariableList.Count];
             for (int index = 0; index < eventRecord.EventVariableList.Count; index++)
@@ -700,7 +719,7 @@ namespace Event.Communication
                                                          tempDataTypes, errorCode);
                 DebugMode.Write(getStreamInformation.ToXML());
             }
-            
+
             if (errorCode != CommunicationError.Success)
             {
                 throw new CommunicationException("CommunicationEvent.GetStreamInformation()", errorCode);
@@ -722,7 +741,7 @@ namespace Event.Communication
         /// </summary>
         /// <param name="eventRecord">The event record associated with the data stream that is to be downloaded.</param>
         /// <returns>The data stream corresponding to the specified event record.</returns>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the calls to the PTUDLL32.GetStreamInformation() or PTUDLL32Event.GetStream() 
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the calls to the PTUDLL32.GetStreamInformation() or PTUDLL32Event.GetStream()
         /// methods is not CommunicationError.Success.</exception>
         public DataStream_t GetStream(EventRecord eventRecord)
         {
@@ -736,7 +755,7 @@ namespace Event.Communication
             short[] watchIdentifiers, dataTypes;
 
             GetStreamInformation(eventRecord.StreamNumber, out watchCount, out sampleCount, out sampleMultiple, out watchIdentifiers, out dataTypes);
-            
+
             int[] buffer = new int[sampleCount * watchCount];
             short timeOrigin;
 
@@ -857,7 +876,7 @@ namespace Event.Communication
         /// </summary>
         /// <param name="eventCount">The number of new events that have been added to the event log.</param>
         /// <param name="newIndex">The new index of the latest event.</param>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CheckFaultlogger() method is not 
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CheckFaultlogger() method is not
         /// CommunicationError.Success.</exception>
         public void CheckFaultLogger(ref short eventCount, ref uint newIndex, ref uint newEventsLogged)
         {
@@ -894,7 +913,7 @@ namespace Event.Communication
 
         /// <summary>
         /// Get the status of the flags that control: (a) whether the event type is enabled and (b) whether the event type triggers the recoding of a
-        /// data stream. 
+        /// data stream.
         /// </summary>
         /// <param name="validFlags">An array of flags that define which of the available event types are valid for the current log. The total length
         /// of the array is the maximum number of events per task multiplied by the maximum number of tasks and the array element corresponding to a
@@ -940,7 +959,7 @@ namespace Event.Communication
 
         /// <summary>
         /// Set the flag that controls: (a) whether the specified event type is enabled and (b) whether the event type triggers the recoding of a data
-        /// stream. 
+        /// stream.
         /// </summary>
         /// <param name="taskIdentfier">The task identifier associated with the event type.</param>
         /// <param name="eventIdentifier">The event identifier associated with the event type.</param>
@@ -948,7 +967,7 @@ namespace Event.Communication
         /// enabled. True, if the event type is to be enabled; otherwise, false.</param>
         /// <param name="streamTriggeredFlag">A flag to control whether the event type corresponding to the specified task and event identifiers is to
         /// trigger the recording of a data stream. True, if the event type is to trigger the recording of a data stream; otherwise, false.</param>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.SetFaultFlags() method is not 
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.SetFaultFlags() method is not
         /// CommunicationError.Success.</exception>
         public void SetFaultFlags(short taskIdentfier, short eventIdentifier, short enabledFlag, short streamTriggeredFlag)
         {
@@ -1022,6 +1041,7 @@ namespace Event.Communication
         }
 
         #region - [Support Methods] -
+
         /// <summary>
         /// Convert the data stream values retrieved from the VCU to a format that can be plotted by the <c>FormViewDataStream</c> class.
         /// </summary>
@@ -1042,7 +1062,7 @@ namespace Event.Communication
                                                            short[] dataTypes, Workset_t workset)
         {
             Debug.Assert(sampleCount > 1, "CommunicationEvent.ConvertToWatchFrameList() - [pointCount > 1]");
-            Debug.Assert(frameIntervalMs > 0 , "CommunicationEvent.ConvertToWatchFrameList() - [frameIntervalMs > 0");
+            Debug.Assert(frameIntervalMs > 0, "CommunicationEvent.ConvertToWatchFrameList() - [frameIntervalMs > 0");
             Debug.Assert(values != null, "CommunicationEvent.ConvertToWatchFrameList() - [values != null]");
             Debug.Assert(dataTypes != null, "CommunicationEvent.ConvertToWatchFrameList() - [dataTypes != null]");
 
@@ -1128,7 +1148,9 @@ namespace Event.Communication
             workset.SampleMultiple = sampleMultiple;
             return workset;
         }
+
         #endregion - [Support Methods] -
+
         #endregion --- Methods ---
     }
 }

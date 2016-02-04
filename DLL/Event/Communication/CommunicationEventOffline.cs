@@ -1,47 +1,52 @@
 #region --- Revision History ---
+
 /*
- * 
+ *
  *  This document and its contents are the property of Bombardier Inc. or its subsidiaries and contains confidential, proprietary information.
  *  The reproduction, distribution, utilization or the communication of this document, or any part thereof, without express authorization is strictly
  *  prohibited. Offenders will be held liable for the payment of damages.
- * 
+ *
  *  (C) 2010    Bombardier Inc. or its subsidiaries. All rights reserved.
- * 
+ *
  *  Solution:   Portable Test Unit
- * 
+ *
  *  Project:    Event
- * 
+ *
  *  File name:  CommunicationEventOffline.cs
- * 
+ *
  *  Revision History
  *  ----------------
- * 
+ *
  *  Date        Version Author          Comments
  *  08/03/11    1.0     Sean.D          1.  First entry into TortoiseSVN.
- * 
- *  08/11/11    1.1     Sean.D          1.  Minor modifications to: (a) dynamically the load event list for specific data dictionaries; (b) add fake delays to the calls; 
+ *
+ *  08/11/11    1.1     Sean.D          1.  Minor modifications to: (a) dynamically the load event list for specific data dictionaries; (b) add fake delays to the calls;
  *                                          and (c) change the fetched data to be all zeroes.
- *                                          
+ *
  *  08/25/11    1.1     K.McD           1.  Replaced the Verisimilitude sleep values with constants.
  *                                      2.  Removed support for debug mode to be consistent with other sub-systems.
- *                                      3.  Added member variables to record: (a) the workset that is to be used to simulate the fault log parameters stored on the VCU 
- *                                          and the fault log data streams associated with the selected event log and (b) the sample count for all fault 
+ *                                      3.  Added member variables to record: (a) the workset that is to be used to simulate the fault log parameters stored on the VCU
+ *                                          and the fault log data streams associated with the selected event log and (b) the sample count for all fault
  *                                          logs associated with the selected event log.
  *                                      4.  Modified the constructor to initialize the workset used to simulate the fault log parameters etc.
  *                                      5.  Replaced hard coded values, other than 1 and 0, with constants.
  *                                      6.  Modified the ChangeEventLog() method to initialize the sample count associated with the selected event log.
- *                                      7.  Modified the LoadEventLog method to set the event count parameter to a value that ensures that all events defined in the 
+ *                                      7.  Modified the LoadEventLog method to set the event count parameter to a value that ensures that all events defined in the
  *                                          data dictionary are analyzed.
- *                                      8.  Modified the GetDefaultStreamInformation() method to use the: (a) sample count and (b) workset defined in the ChangeEventLog() 
+ *                                      8.  Modified the GetDefaultStreamInformation() method to use the: (a) sample count and (b) workset defined in the ChangeEventLog()
  *                                          method and constructor respectively.
  *                                      9.  Modified the GetStreamInformation() method to call the GetDefaultStreamInformation() method.
  *                                      10. Modified the GetStream() method to use the GetStreamInformation() method as a basis for the data stream.
- *                                      
- *  07/24/13    1.2     K.McD           1.  Automatic update when all references to the Parameter.WatchSizeFaultLogMax constant were replaced by references to the 
+ *
+ *  07/24/13    1.2     K.McD           1.  Automatic update when all references to the Parameter.WatchSizeFaultLogMax constant were replaced by references to the
  *                                          Parameter.WatchSizeFaultLog property.
- *                                          
+ *
  *  08/05/13    1.3     K.McD           1.  Changed the SleepMsVerisimilitudeGetRecord constant from 25 ms to 0 ms as the simulated time to load the event list was excessive.
+ *
+ *  02/03/16    1.4     DAS             1.  Changed the CheckFaultLogger(). Added a new argument to the parameter list "newEVentsLogged" to reflect the "real" system call
+ *
  */
+
 #endregion --- Revision History ---
 
 using System;
@@ -62,6 +67,7 @@ namespace Event.Communication
     public class CommunicationEventOffline : CommunicationParentOffline, ICommunicationEvent
     {
         #region --- Constants ---
+
         /// <summary>
         /// The <c>CultureInfo</c> string used to represent - english (US). Value: "en-US";
         /// </summary>
@@ -73,6 +79,7 @@ namespace Event.Communication
         private const short VCUDataStreamColumnCountMax = 1;
 
         #region -[Sleep] -
+
         /// <summary>
         /// The sleep interval, in ms, to simulate real time delays for standard event log operations. Value: 250 ms.
         /// </summary>
@@ -97,6 +104,7 @@ namespace Event.Communication
         /// The sleep interval, in ms, to simulate real time delays in geting and setting the stream information. Value: 2,000 ms.
         /// </summary>
         private const int SleepMsVerisimilitudeStreamInformation = 2000;
+
         #endregion -[Sleep] -
 
         /// <summary>
@@ -133,9 +141,11 @@ namespace Event.Communication
         /// The sample multiple of the log i.e. the multiple of the base sampling rate at which the data is to be sampled. Value: 1.
         /// </summary>
         private const int SampleMultiple = 1;
+
         #endregion --- Constants ---
 
         #region --- Member Variables ---
+
         /// <summary>
         /// The workset that is to be used to simulate the fault log parameters and data stream.
         /// </summary>
@@ -145,13 +155,15 @@ namespace Event.Communication
         /// The sample count of all fault logs associated with the current event log.
         /// </summary>
         private int m_SampleCountFaultLog;
-        #endregion --- Memeber Variables ---
+
+        #endregion --- Member Variables ---
 
         #region --- Constructors ---
+
         /// <summary>
         /// Initialize a new instance of the class and set the properties and member variables to those values associated with the specified communication interface.
         /// </summary>
-        /// <param name="communicationInterface">Reference to the communication interface containing the properties and member variables that are to be used to 
+        /// <param name="communicationInterface">Reference to the communication interface containing the properties and member variables that are to be used to
         /// initialize the class.</param>
         public CommunicationEventOffline(ICommunicationParent communicationInterface)
             : base(communicationInterface)
@@ -165,16 +177,18 @@ namespace Event.Communication
             Workset_t workset = Workset.FaultLog.Worksets[worksetIndex];
             m_Workset = workset;
         }
+
         #endregion --- Constructors ---
 
         #region --- Methods ---
+
         /// <summary>
-        /// Change the current event log on the VCU to the specified log and initialize the: DataRecordingRate, ChangeStatus, MaxTasks and MaxEventsPerTask properties 
+        /// Change the current event log on the VCU to the specified log and initialize the: DataRecordingRate, ChangeStatus, MaxTasks and MaxEventsPerTask properties
         /// of the log structure with the values returned from the VCU.
         /// </summary>
         /// <param name="log">The required event log.</param>
-        /// <remarks>The identifier field of the specified log must be initialized prior to calling this method. Note: The call to the ChangeEventLog() method in 
-        /// PTUDLL32.dll refers to the eventLogIndex, whereas the log structure uses the log identifier. The event log index is zero based and is equivalent 
+        /// <remarks>The identifier field of the specified log must be initialized prior to calling this method. Note: The call to the ChangeEventLog() method in
+        /// PTUDLL32.dll refers to the eventLogIndex, whereas the log structure uses the log identifier. The event log index is zero based and is equivalent
         /// to the event log identifier - 1.</remarks>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.ChangeEventLog() method is not CommunicationError.Success.</exception>
         public void ChangeEventLog(Log log)
@@ -185,7 +199,7 @@ namespace Event.Communication
 
             // Get the sample count of all fault logs associated with the selected event log.
             int tripIndex = Lookup.LogTable.Items[log.Identifier].DataStreamTypeParameters.TripIndex;
-            m_SampleCountFaultLog = (int)Math.Round(tripIndex * ConversionTripIndexToSampleCount,0);
+            m_SampleCountFaultLog = (int)Math.Round(tripIndex * ConversionTripIndexToSampleCount, 0);
 
             sampleIntervalMs = SampleIntervalMsFaultLog;
             changeStatus = 1;
@@ -212,8 +226,8 @@ namespace Event.Communication
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.LoadFaultlog() method is not CommunicationError.Success.</exception>
         public void LoadEventLog(out short eventCount, out uint oldIndex, out uint newIndex)
         {
-            // Ensure that the event count exceeds the maximum number of events that have been defined for the project. 
-            eventCount= (short)(Lookup.EventTable.IdentifierMax + 1);
+            // Ensure that the event count exceeds the maximum number of events that have been defined for the project.
+            eventCount = (short)(Lookup.EventTable.IdentifierMax + 1);
 
             // The following values are not used by the calling class.
             oldIndex = 0;
@@ -302,7 +316,7 @@ namespace Event.Communication
             // ---------------------------------------------------------
             // Get the event variables associated with the event record.
             // ---------------------------------------------------------
-            
+
             // Define the data types associated with each event variable aasociated with the selected event.
             short[] types = new short[eventRecord.EventVariableList.Count];
             for (int index = 0; index < eventRecord.EventVariableList.Count; index++)
@@ -362,7 +376,7 @@ namespace Event.Communication
         /// <summary>
         /// Retrieve the event variables associated with the specified event.
         /// </summary>
-        /// <remarks>The number of events consist of the event variables that are collected for every event plus the event specific variables. The event variables that 
+        /// <remarks>The number of events consist of the event variables that are collected for every event plus the event specific variables. The event variables that
         /// are collected for each event consist of those event variables associated with the structure identifier value of 0 less those defined as event header variables.</remarks>
         /// <param name="eventIndex">The index of the event.</param>
         /// <param name="eventVariableCount">The number of event variable that are to be retrieved.</param>
@@ -381,8 +395,8 @@ namespace Event.Communication
         }
 
         /// <summary>
-        /// Initialize the event log. Clears all event information stored on battery backed RAM for both the maintenance and engineering logs. This also clears 
-        /// both the cumulative history, recent history columns and all data logs. This function is typically used to establish a zero event/fault reference base when a replacement 
+        /// Initialize the event log. Clears all event information stored on battery backed RAM for both the maintenance and engineering logs. This also clears
+        /// both the cumulative history, recent history columns and all data logs. This function is typically used to establish a zero event/fault reference base when a replacement
         /// VCU is installed in a car.
         /// </summary>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.InitializeEventLog() method is not CommunicationError.Success.</exception>
@@ -495,7 +509,7 @@ namespace Event.Communication
         /// </summary>
         /// <param name="eventRecord">The event record associated with the data stream that is to be downloaded.</param>
         /// <returns>The data stream corresponding to the specified event record.</returns>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the calls to the PTUDLL32.GetStreamInformation() or PTUDLL32Event.GetStream() 
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the calls to the PTUDLL32.GetStreamInformation() or PTUDLL32Event.GetStream()
         /// methods is not CommunicationError.Success.</exception>
         public DataStream_t GetStream(EventRecord eventRecord)
         {
@@ -532,9 +546,9 @@ namespace Event.Communication
         /// Set the default stream parameters.
         /// </summary>
         /// <param name="sampleMultiple">The sample multiple of the recording interval at which the data is to be recorded.</param>
-        /// <param name="oldIdentifierList">The list of old identifiers associated with the watch variables that are to be recorded in the fault log, in the 
+        /// <param name="oldIdentifierList">The list of old identifiers associated with the watch variables that are to be recorded in the fault log, in the
         /// order in which they are to appear.</param>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.SetDefaultStreamInformation() method is not 
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.SetDefaultStreamInformation() method is not
         /// CommunicationError.Success.</exception>
         public void SetDefaultStreamInformation(short sampleMultiple, List<short> oldIdentifierList)
         {
@@ -550,8 +564,8 @@ namespace Event.Communication
         /// </summary>
         /// <param name="eventCount">The number of new events that have been added to the event log.</param>
         /// <param name="newIndex">The new index of the latest event.</param>
-        /// <param name="newEventsLogged">TODO</param>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CheckFaultlogger() method is not 
+        /// <param name="newEventsLogged">The number of new events logged since the last call using this method</param>
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.CheckFaultlogger() method is not
         /// CommunicationError.Success.</exception>
         public void CheckFaultLogger(ref short eventCount, ref uint newIndex, ref uint newEventsLogged)
         {
@@ -565,17 +579,17 @@ namespace Event.Communication
         }
 
         /// <summary>
-        /// Get the status of the flags that control: (a) whether the event type is enabled and (b) whether the event type triggers the recoding of a data stream. 
+        /// Get the status of the flags that control: (a) whether the event type is enabled and (b) whether the event type triggers the recoding of a data stream.
         /// </summary>
-        /// <param name="validFlags">An array of flags that define which of the available event types are valid for the current log. The total length of the array is 
-        /// the maximum number of events per task multiplied by the maximum number of tasks and the array element corresponding to a particular event type is defined as: 
+        /// <param name="validFlags">An array of flags that define which of the available event types are valid for the current log. The total length of the array is
+        /// the maximum number of events per task multiplied by the maximum number of tasks and the array element corresponding to a particular event type is defined as:
         /// {task identifier} * {maximum number of events per task} + {event identifier}. True, indicates that the event type is valid; otherwise, false.</param>
         /// <param name="enabledFlags">An array of flags that indicate whether the event type is enabled. True, indicates that the event type is enabled; otherwise, false.</param>
-        /// <param name="streamTriggeredFlags">An array of flags that indicate whether the event type triggers the recording of a data stream. True, indicates that the 
+        /// <param name="streamTriggeredFlags">An array of flags that indicate whether the event type triggers the recording of a data stream. True, indicates that the
         /// event type triggers the recording of a data stream; otherwise false.</param>
         /// <param name="eventCount">The maximum number of event types i.e. the maximum number of event types per task multiplied by the maximum number of tasks.</param>
-        /// <remarks>The size of the <paramref name="enabledFlags"/> and <paramref name="streamTriggeredFlags"/> arrays is equal to the number of defined 
-        /// event types associated with the current log. The array index is mapped to a table that is derived by sorting the records of the EVENTS table of the data 
+        /// <remarks>The size of the <paramref name="enabledFlags"/> and <paramref name="streamTriggeredFlags"/> arrays is equal to the number of defined
+        /// event types associated with the current log. The array index is mapped to a table that is derived by sorting the records of the EVENTS table of the data
         /// dictionary corresponding to the LOGID field associated with the current log by the TASKID, EVENTID fields, in ascending order. </remarks>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.GetFltFlagInfo() method is not CommunicationError.Success.</exception>
         public void GetFltFlagInfo(short[] validFlags, ref short[] enabledFlags, ref short[] streamTriggeredFlags, short eventCount)
@@ -588,15 +602,15 @@ namespace Event.Communication
         }
 
         /// <summary>
-        /// Set the flag that controls: (a) whether the specified event type is enabled and (b) whether the event type triggers the recoding of a data stream. 
+        /// Set the flag that controls: (a) whether the specified event type is enabled and (b) whether the event type triggers the recoding of a data stream.
         /// </summary>
         /// <param name="taskIdentfier">The task identifier associated with the event type.</param>
         /// <param name="eventIdentifier">The event identifier associated with the event type.</param>
-        /// <param name="enabledFlag">A flag to control whether the event type corresponding to the specified task and event identifiers is to be enabled. True, if 
+        /// <param name="enabledFlag">A flag to control whether the event type corresponding to the specified task and event identifiers is to be enabled. True, if
         /// the event type is to be enabled; otherwise, false.</param>
-        /// <param name="streamTriggeredFlag">A flag to control whether the event type corresponding to the specified task and event identifiers is to trigger the 
+        /// <param name="streamTriggeredFlag">A flag to control whether the event type corresponding to the specified task and event identifiers is to trigger the
         /// recording of a data stream. True, if the event type is to trigger the recording of a data stream; otherwise, false.</param>
-        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.SetFaultFlags() method is not 
+        /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.SetFaultFlags() method is not
         /// CommunicationError.Success.</exception>
         public void SetFaultFlags(short taskIdentfier, short eventIdentifier, short enabledFlag, short streamTriggeredFlag)
         {
@@ -610,15 +624,15 @@ namespace Event.Communication
         /// <summary>
         /// Get the event history associated with the current log.
         /// </summary>
-        /// <param name="validFlags">An array of flags that define which of the available event types are valid for the current log. The total length of the array is 
-        /// the maximum number of events per task multiplied by the maximum number of tasks and the array element corresponding to a particular event type is defined as: 
+        /// <param name="validFlags">An array of flags that define which of the available event types are valid for the current log. The total length of the array is
+        /// the maximum number of events per task multiplied by the maximum number of tasks and the array element corresponding to a particular event type is defined as:
         /// {task identifier} * {maximum number of events per task} + {event identifier}. True, indicates that the event type is valid; otherwise, false.</param>
         /// <param name="cumulativeHistoryCounts">An array that contains the cumulative number of events of each event type, not including recent history.</param>
         /// <param name="recentHistoryCounts">An array that contains the recent number of events of each event type.</param>
         /// <param name="maxTasks">The maximum number of tasks that are supported by the current event log.</param>
         /// <param name="maxEventsPerTask">The maximum number of events per task that are supported by the current event log.</param>
-        /// <remarks>The size of the <paramref name="cumulativeHistoryCounts"/> and <paramref name="recentHistoryCounts"/> arrays is equal to the number of defined 
-        /// event types associated with the current log. The array index is mapped to a table that is derived by sorting the records of the EVENTS table of the data 
+        /// <remarks>The size of the <paramref name="cumulativeHistoryCounts"/> and <paramref name="recentHistoryCounts"/> arrays is equal to the number of defined
+        /// event types associated with the current log. The array index is mapped to a table that is derived by sorting the records of the EVENTS table of the data
         /// dictionary corresponding to the LOGID field associated with the current log by the TASKID, EVENTID fields, in ascending order. </remarks>
         /// <exception cref="CommunicationException">Thrown if the error code returned from the call to the PTUDLL32.GetFltHistInfo() method is not CommunicationError.Success.</exception>
         public void GetFltHistInfo(short[] validFlags, ref short[] cumulativeHistoryCounts, ref short[] recentHistoryCounts, short maxTasks, short maxEventsPerTask)
@@ -631,11 +645,12 @@ namespace Event.Communication
         }
 
         #region - [Support Methods] -
+
         /// <summary>
         /// Convert the data stream values retrieved from the VCU to a format that can be plotted by the <c>FormViewDataStream</c> class.
         /// </summary>
         /// <remarks>
-        /// The value array retrieved by from the VCU is initially mapped to the WatchIdentifierList property of Column[0] of the workset, however, the WatchElement 
+        /// The value array retrieved by from the VCU is initially mapped to the WatchIdentifierList property of Column[0] of the workset, however, the WatchElement
         /// array associated with each frame must be mapped to the WatchElementList property of the workset.
         /// </remarks>
         /// <param name="startTime">The start time of the fault log.</param>
@@ -649,7 +664,7 @@ namespace Event.Communication
         private List<WatchFrame_t> ConvertToWatchFrameList(DateTime startTime, short sampleCount, short frameIntervalMs, int[] values, short[] dataTypes, Workset_t workset)
         {
             Debug.Assert(sampleCount > 1, "CommunicationEvent.ConvertToWatchFrameList() - [pointCount > 1]");
-            Debug.Assert(frameIntervalMs > 0 , "CommunicationEvent.ConvertToWatchFrameList() - [frameIntervalMs > 0");
+            Debug.Assert(frameIntervalMs > 0, "CommunicationEvent.ConvertToWatchFrameList() - [frameIntervalMs > 0");
             Debug.Assert(values != null, "CommunicationEvent.ConvertToWatchFrameList() - [values != null]");
             Debug.Assert(dataTypes != null, "CommunicationEvent.ConvertToWatchFrameList() - [dataTypes != null]");
 
@@ -708,7 +723,7 @@ namespace Event.Communication
         /// Convert the specified data stream watch variable identifiers/parameters into a valid workset.
         /// </summary>
         /// <remarks>
-        /// All of the watch identifiers returned from the VCU s are added to Column[0] of the workset in the order in which they appear in <paramref name="variableIdentifiers"/> and 
+        /// All of the watch identifiers returned from the VCU s are added to Column[0] of the workset in the order in which they appear in <paramref name="variableIdentifiers"/> and
         /// the security level of the workset is set to the lowest security level.
         /// </remarks>
         /// <param name="name">The name of the workset.</param>
@@ -732,7 +747,9 @@ namespace Event.Communication
             workset.SampleMultiple = sampleMultiple;
             return workset;
         }
+
         #endregion - [Support Methods] -
+
         #endregion --- Methods ---
     }
 }

@@ -1827,6 +1827,91 @@
  *                                  1.  VcuCommunication Application Extension Assembly. Rev. 2.2. - Ref.: 1.
  */
 #endregion - [Revision History 6.16.1] -
+
+#region - [Revision History 6.16.1.1] -
+/*
+ *  02/03/16    6.16.1.1  DAS       References
+ *                                  1.  Removed all unmanaged C++ legacy code and replaced with C# code so that PTU application is x32/x64 independent.
+ *                                  2.  Fixed issues associated with logging and displaying real time events while displaying event viewer.
+ *                                  
+ *                                  File Changes
+ *                           
+ *  FILE NAME                                                   STATUS   
+ *  ---------------------------------------------------------------------
+ *  DLL/Common/Communication/EventStreamMarshal.cs	            Added
+ *  DLL/Common/Communication/PtuTargetCommunication.cs          Added	    
+ *  DLL/Common/Communication/SelfTestMarshal.cs                 Added	    
+ *  DLL/Common/Communication/WatchClockMarshal.cs               Added	    
+ *  DLL/VcuComm/Comm.cs                                         Added	    
+ *  DLL/VcuComm/CommDevices/ICommDevice.cs                      Added	    
+ *  DLL/VcuComm/CommDevices/Serial.cs                           Added	    
+ *  DLL/VcuComm/CommDevices/TCP.cs                              Added	    
+ *  DLL/VcuComm/Event.cs                                        Added	    
+ *  DLL/VcuComm/Properties/AssemblyInfo.cs                      Added	    
+ *  DLL/VcuComm/ProtocolClass/ProtocolPTU.cs                    Added	    
+ *  DLL/VcuComm/ProtocolClass/ProtocolPTUEnum.cs                Added	    
+ *  DLL/VcuComm/ProtocolClass/ProtocolPTURequests.cs            Added	    
+ *  DLL/VcuComm/Utils.cs                                        Added	    
+ *  DLL/Common/Common.csproj                                    Modified	
+ *  DLL/Common/Communication/CommunicationParent.cs             Modified	
+ *  DLL/Common/Communication/CommunicationParentOffline.cs      Modified	
+ *  DLL/Common/Communication/Interfaces/ICommunicationEvent.cs  Modified	
+ *  DLL/Common/Communication/Interfaces/ICommunicationParent.cs Modified	
+ *  DLL/Common/Communication/Interfaces/ICommunicationWatch.cs  Modified	
+ *  DLL/Common/Configuration/Parameter.cs                       Modified	
+ *  DLL/Common/Properties/AssemblyInfo.cs                       Modified	
+ *  DLL/Event/Communication/CommunicationEvent.cs               Modified	
+ *  DLL/Event/Communication/CommunicationEventOffline.cs        Modified	
+ *  DLL/Event/Event.csproj                                      Modified	
+ *  DLL/Event/Forms/FormViewEventLog.cs                         Modified	
+ *  DLL/Event/Properties/AssemblyInfo.cs                        Modified	
+ *  DLL/Event/ThreadPollEvent.cs                                Modified	
+ *  DLL/SelfTest/Communication/CommunicationSelfTest.cs         Modified	
+ *  DLL/SelfTest/Properties/AssemblyInfo.cs                     Modified	
+ *  DLL/SelfTest/SelfTest.csproj                                Modified	
+ *  DLL/Watch/Communication/CommunicationWatch.cs               Modified	
+ *  DLL/Watch/Properties/AssemblyInfo.cs                        Modified	
+ *  PTU Application/Communication/CommunicationApplication.cs   Modified	
+ *  PTU Application/Forms/FormSelectTarget.Designer.cs          Modified	
+ *  PTU Application/Forms/FormSelectTarget.cs                   Modified	
+ *  PTU Application/Properties/Resources.Designer.cs            Modified	
+ *  PTU Application/Properties/Resources.resx                   Modified	
+ *  Portable Test Unit.sln                                      Modified	
+ *  SolutionInfo.cs                                             Modified	
+ *  DLL/Common/Communication/VcuCommunication32.cs              Deleted	
+ *  DLL/Common/Communication/VcuCommunication64.cs              Deleted	
+ *  DLL/Event/Communication/VcuCommunication32Event.cs          Deleted	
+ *  DLL/Event/Communication/VcuCommunication64Event.cs          Deleted	
+ *  DLL/SelfTest/Communication/VcuCommunication32SelfTest.cs    Deleted	
+ *  DLL/SelfTest/Communication/VcuCommunication64SelfTest.cs    Deleted	
+ *  DLL/VcuCommunication/ReadMe.txt                             Deleted	
+ *  DLL/VcuCommunication/RevisionHistory.txt                    Deleted	
+ *  DLL/VcuCommunication/StdAfx.cpp                             Deleted	
+ *  DLL/VcuCommunication/StdAfx.h                               Deleted	
+ *  DLL/VcuCommunication/VcuCommunication.cpp                   Deleted	
+ *  DLL/VcuCommunication/VcuCommunication.h                     Deleted	
+ *  DLL/VcuCommunication/VcuCommunication.odl                   Deleted	
+ *  DLL/VcuCommunication/VcuCommunication.vcxproj               Deleted	
+ *  DLL/VcuCommunication/VcuCommunication.vcxproj.filters       Deleted	
+ *  DLL/VcuCommunication/VcuCommunication32.def                 Deleted	
+ *  DLL/VcuCommunication/VcuCommunication64.def                 Deleted	
+ *  DLL/VcuCommunication/VcuCommunication_h.h                   Deleted	
+ *  DLL/VcuCommunication/Version.rc                             Deleted	
+ *  DLL/VcuCommunication/clntsock.cpp                           Deleted	
+ *  DLL/VcuCommunication/clntsock.h                             Deleted	
+ *  DLL/VcuCommunication/comm.cpp                               Deleted	
+ *  DLL/VcuCommunication/comm.h                                 Deleted	
+ *  DLL/VcuCommunication/event.cpp                              Deleted	
+ *  DLL/VcuCommunication/event.h                                Deleted	
+ *  DLL/VcuCommunication/primcomm.cpp                           Deleted	
+ *  DLL/VcuCommunication/resource.h                             Deleted	
+ *  DLL/VcuCommunication/selftest.cpp                           Deleted	
+ *  DLL/VcuCommunication/selftest.h                             Deleted	
+ *  DLL/VcuCommunication/sockets.h                              Deleted	
+ * 
+ */
+#endregion - [Revision History 6.16.1.1] -
+
 #endregion --- Revision History ---
 
 using System.Reflection;
