@@ -21,30 +21,47 @@
  * 
  *  08/25/10    1.1     K.McD           1.  Inherited ApplicationWindow property renamed to MainWindow.
  * 
- *  10/08/10    1.2     K.McD           1.  Bug fix SNCR001.28. Included a try catch block within the Shown event handler in case the GetTargets() method throws an exception.
+ *  10/08/10    1.2     K.McD           1.  Bug fix SNCR001.28. Included a try catch block within the Shown event handler in case the GetTargets() method throws an
+ *                                          exception.
  * 
  *  10/15/10    1.3     K.McD           1.  Modified to use the CommunicationApplication class.
  *  
- *  09/12/11	1.4		Sean.D			1.	Added code to check whether access should be made by serial port, Ethernet, or both, and to attempt the Ethernet access if present.
+ *  09/12/11	1.4		Sean.D			1.	Added code to check whether access should be made by serial port, Ethernet, or both, and to attempt the Ethernet access if
+ *                                          present.
  *
  *  09/21/11	1.4.1	Sean.D			1.	Changed code in GetTargets to print appropriate status messages while attempting to connect to URIs.
  *
+ *  11/04/15    1.5     K.McD           References
+ *                                      1.  Provide feedback to the user while the URI scan is in progress. Include progress bar and list current target URI.
+ *                                      
+ *                                      Modifications
+ *                                      1.  Applied 'Organize Using - Remove and Sort'.
+ *                                      2.  Added m_CancelSelected flag to indicate that the Cancel button was selected.
+ *                                      3.  Modified the Cancel button event handler to assert m_CancelSelected and to only call the Close() method if
+ *                                          the URI scan is complete.
+ *                                      4.  Significant modifications to the GetTargets() method:
+ *                                          1.  Included a number of calls to the statusInformation.Update() method to ensure that the status information is updated.
+ *                                          2.  Added support for the URI scan ProgressBar control and the associated legend.
+ *                                          3.  Removed the statusInformation property updates in the catch statements as they are overwritten too quickly to be seen.
+ *                                          4.  Ensured that the OK button is disabled during the scan.
+ *                                          5.  Added to Application.DoEvents() call at the beginning of each scan cycle.
+ *                                          6.  Included check within each cycle of the scan to determine if the Cancel button has been selected by the user and, if
+ *                                              so, to terminate the scan.
  */
 #endregion --- Revision History ---
 
 using System;
-using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Win32;
+using System.Windows.Forms;
 
-using Common;
-using Common.Communication;
-using Common.Forms;
-using Common.Configuration;
-using Watch;
 using Bombardier.PTU.Communication;
 using Bombardier.PTU.Properties;
+using Common;
+using Common.Communication;
+using Common.Configuration;
+using Common.Forms;
+using Microsoft.Win32;
 
 namespace Bombardier.PTU.Forms
 {
@@ -102,6 +119,11 @@ namespace Bombardier.PTU.Forms
         /// The list of communication settings associated with the target logic controllers that were found. 
         /// </summary>
         List<CommunicationSetting_t> m_CommunicationSettingList;
+
+        /// <summary>
+        /// A flag to indicate that the Cancel button been selected.
+        /// </summary>
+        private bool m_CancelSelected = false;
         #endregion --- Member Variables ---
 
         #region --- Constructors ---
@@ -177,7 +199,8 @@ namespace Bombardier.PTU.Forms
                     }
                     else
                     {
-                        dialogResult = MessageBox.Show(Resources.MBTLogicsNotFound, Resources.MBCaptionInformation, MessageBoxButtons.RetryCancel, MessageBoxIcon.Information);
+                        dialogResult = MessageBox.Show(Resources.MBTLogicsNotFound, Resources.MBCaptionInformation, MessageBoxButtons.RetryCancel,
+                                                       MessageBoxIcon.Information);
                         Update();
                         if (dialogResult == DialogResult.Cancel)
                         {
@@ -202,7 +225,14 @@ namespace Bombardier.PTU.Forms
         /// <param name="e">Parameter passed from the object that raised the event.</param>
         private void m_Cancel_Click(object sender, EventArgs e)
         {
+            // Assert the flag that indicates that the Cancel button has been selected so that the scan can be terminated, if need be.
+            m_CancelSelected = true;
+
+            // Only close the form if the scan is complete.
+            if (m_BtnOK.Enabled == true)
+            {
             Close();
+        }
         }
 
         /// <summary>
@@ -240,7 +270,8 @@ namespace Bombardier.PTU.Forms
         /// <param name="listBoxTargetsFound">The <c>ListBox</c> control on which the target names are to be displayed.</param>
         /// <param name="statusInformation">The control on which the status information is to be displayed.</param>
         /// <returns>A flag to indicate whether one or more targets were found; true, if  targets were found, otherwise, false.</returns>
-        public bool GetTargets(ListBox listBoxTargetsFound, Control statusInformation,  out List<TargetConfiguration_t> targetConfigurationList, out List<CommunicationSetting_t> communicationSettingList)
+        public bool GetTargets(ListBox listBoxTargetsFound, Control statusInformation,  out List<TargetConfiguration_t> targetConfigurationList,
+                               out List<CommunicationSetting_t> communicationSettingList)
         {
             // Instantiate to output parameters.
             communicationSettingList = new List<CommunicationSetting_t>();
@@ -291,8 +322,8 @@ namespace Bombardier.PTU.Forms
 						communicationSetting.Port.FullSpecification = value.PadRight(ComDeviceTotalCharacters) + " - " + valueName;
 						communicationSetting.Port.Type = (communicationSetting.Port.FullSpecification.Contains(VirtualComPort)) ? PortType.VCP : PortType.COM;
 
-						// Determine the port identifier, this is a 16 bit Unicode string representation of the serial port number e.g. for physical and virtual COM ports 
-						// this takes the form: 1, 2, 3 ... etc and is used by the InitCommunication() method in PTUDLL32 to specify the serial communication port.
+						// Determine the port identifier, this is a 16 bit Unicode string representation of the serial port number e.g. for physical and virtual
+                        // COM ports this takes the form: 1, 2, 3 ... etc.
 						switch (communicationSetting.Port.Type)
 						{
 							case PortType.COM:
@@ -313,9 +344,10 @@ namespace Bombardier.PTU.Forms
 							if (communicationInterface.ScanPort(communicationSetting, out targetConfiguration) == true)
 							{
 								targetConfigurationList.Add(targetConfiguration);
-                                listBoxTargetsFound.Items.Add(targetConfiguration.SubSystemName + " (COM" + communicationSetting.PortIdentifier.ToString() + ")");
+                                listBoxTargetsFound.Items.Add(targetConfiguration.SubSystemName + " - (COM" + communicationSetting.PortIdentifier + ")" );
 								listBoxTargetsFound.Update();
 								statusInformation.Text = Resources.TextTargetFoundOn + CommonConstants.Space + communicationSetting.Port.FullSpecification;
+                                statusInformation.Update();
 								communicationSettingList.Add(communicationSetting);
 								targetFound = true;
 							}
@@ -324,12 +356,14 @@ namespace Bombardier.PTU.Forms
 						{
 							statusInformation.Text = Resources.TextNoTargetFoundOn + CommonConstants.Space + communicationSetting.Port.FullSpecification;
 							statusInformation.Update();
-                            System.Threading.Thread.Sleep(1500);
 							continue;
 						}
 					}
 				}
 			}
+
+            statusInformation.Text = string.Empty;
+            statusInformation.Update();
 
 			if (Parameter.CommunicationType == Parameter.CommunicationTypeEnum.Both || Parameter.CommunicationType == Parameter.CommunicationTypeEnum.TCPIP)
 			{
@@ -344,13 +378,38 @@ namespace Bombardier.PTU.Forms
 				communicationSetting.Protocol = Protocol.TCPIP;
 
 				TargetConfiguration_t targetConfiguration;
-				// Scan each port in the Registry.
-				foreach (string URI in Parameter.URIList)
-				{
-					communicationSetting.PortIdentifier = URI;
 
-                    statusInformation.Text = Resources.TextSearchingForTargetOn + CommonConstants.Space + communicationSetting.PortIdentifier;
+                // Initialize the ProgressBar control.
+                m_ProgressBarScan.Enabled = true;
+                m_ProgressBarScan.Visible = true;
+                m_LegendScanProgress.Visible = true;
+                m_ProgressBarScan.Maximum = Parameter.URIList.Count;
+                m_ProgressBarScan.Value = 0;
+                m_BtnOK.Enabled = false;
+                m_CancelSelected = false;
+
+				// Scan each port in the Registry.
+				foreach (string uRI in Parameter.URIList)
+				{
+                    // Ensure that the form remains responsive during the asynchronous operation.
+                    Application.DoEvents();
+
+                    // Check whether the Cancel button has been selected.
+                    if (m_CancelSelected == true)
+				{
+                        // Yes - Terminate the scan.
+                        break;
+                    }
+
+                    // Update the progress bar.
+                    m_ProgressBarScan.Value++;
+
+					communicationSetting.PortIdentifier = uRI;
+
+                    statusInformation.Text = Resources.TextSearchingForTargetOn + CommonConstants.Space + Resources.TextURI + CommonConstants.Colon +
+                                             communicationSetting.PortIdentifier;
                     statusInformation.Update();
+
 					// Instantiate the appropriate type of communication interface.
 					communicationInterface = new CommunicationApplication();
 					try
@@ -358,21 +417,26 @@ namespace Bombardier.PTU.Forms
 						if (communicationInterface.ScanPort(communicationSetting, out targetConfiguration) == true)
 						{
 							targetConfigurationList.Add(targetConfiguration);
-							listBoxTargetsFound.Items.Add(targetConfiguration.SubSystemName + CommonConstants.Space + "(" + URI + ")");
+							listBoxTargetsFound.Items.Add(targetConfiguration.SubSystemName + CommonConstants.BindingMessage +
+                                                          Resources.TextURI + CommonConstants.Colon + communicationSetting.PortIdentifier);
 							listBoxTargetsFound.Update();
-							statusInformation.Text = Resources.TextTargetFoundOn + CommonConstants.Space + URI;
+                            statusInformation.Text = Resources.TextTargetFoundOn + CommonConstants.Space + Resources.TextURI + CommonConstants.Colon +
+                                                     communicationSetting.PortIdentifier;
+                            statusInformation.Update();
 							communicationSettingList.Add(communicationSetting);
 							targetFound = true;
 						}
 					}
 					catch (Exception)
 					{
-						statusInformation.Text = Resources.TextNoTargetFoundOn + CommonConstants.Space + communicationSetting.PortIdentifier;
-						statusInformation.Update();
-                        System.Threading.Thread.Sleep(1500);
 						continue;
 					}
 				}
+
+                m_BtnOK.Enabled = true;
+                m_ProgressBarScan.Enabled = false;
+                m_ProgressBarScan.Visible = false;
+                m_LegendScanProgress.Visible = false;
 			}
 
             if (targetFound == true)

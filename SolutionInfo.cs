@@ -1813,9 +1813,18 @@
 
 #region - [Revision History 6.16.1] -
 /*
- *  01/20/16    6.16.1  DAS       Modifications
- *                                  1.  Removed all unmanaged code to legacy target interface C++ code and replaced
- *                                      with managed (C#) code
+ *  11/02/15    6.16.1    K.McD     References
+ *                                  1.  Incorporate UDP/TCPIP communication link support for BART/Toronto projects.
+ *                                  2.  Bug fix associated with loading the event log.
+ *                                  3.  Bug fix associated with large delays in UI (circle of death) when multiple URIs are not present.
+ *                                  4.  Provide feedback to the user while the URI scan is in progress. Include progress bar and list current target URI.
+ *                                  
+ *                                  Modifications
+ *                                  1.  FormSelectTarget.cs. Rev. 1.5, FormSelectTarget.Designer.cs. Rev. 1.1. - Ref.: 4.
+ *                                  2.  Resources.resx. Added TextURI resource string. - Ref.: 4.
+ *
+ *                                  Dynamic Link Library Updates
+ *                                  1.  VcuCommunication Application Extension Assembly. Rev. 2.2. - Ref.: 1.
  */
 #endregion - [Revision History 6.16.1] -
 #endregion --- Revision History ---
@@ -1841,4 +1850,4 @@ using System.Resources;
 //
 // You can specify all the values or you can default the Revision and Build Numbers by using the '*'.
 
-[assembly: AssemblyVersion("6.15.1.1")]
+[assembly: AssemblyVersion("6.16.1.1")]

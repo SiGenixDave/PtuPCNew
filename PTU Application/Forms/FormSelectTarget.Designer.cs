@@ -19,6 +19,12 @@
  *  Date        Version Author          Comments
  *  05/09/10    1.0     K.McDonald      First Release.
  *
+ *  11/04/15    1.1     K.McD           References
+ *                                      1.  Provide feedback to the user while the URI scan is in progress. Include progress bar and list current target URI.
+ *                                      
+ *                                      Modifications
+ *                                      1.  Added m_ProgressBarScan and m_LegendScanProgress controls.
+ *
  */
 #endregion --- Revision History ---
 
@@ -46,6 +52,8 @@ namespace Bombardier.PTU.Forms
             this.m_ListBoxAvailableLogicControllers = new System.Windows.Forms.ListBox();
             this.m_BtnOK = new System.Windows.Forms.Button();
             this.m_Cancel = new System.Windows.Forms.Button();
+            this.m_ProgressBarScan = new System.Windows.Forms.ProgressBar();
+            this.m_LegendScanProgress = new System.Windows.Forms.Label();
             this.m_PanelOuter.SuspendLayout();
             this.m_GroupLogicList.SuspendLayout();
             this.SuspendLayout();
@@ -117,12 +125,35 @@ namespace Bombardier.PTU.Forms
             this.m_Cancel.UseVisualStyleBackColor = true;
             this.m_Cancel.Click += new System.EventHandler(this.m_Cancel_Click);
             // 
+            // m_ProgressBarScan
+            // 
+            this.m_ProgressBarScan.Enabled = false;
+            this.m_ProgressBarScan.Location = new System.Drawing.Point(92, 207);
+            this.m_ProgressBarScan.Maximum = 20;
+            this.m_ProgressBarScan.Name = "m_ProgressBarScan";
+            this.m_ProgressBarScan.Size = new System.Drawing.Size(190, 6);
+            this.m_ProgressBarScan.Step = 1;
+            this.m_ProgressBarScan.TabIndex = 3;
+            this.m_ProgressBarScan.Visible = false;
+            // 
+            // m_LegendScanProgress
+            // 
+            this.m_LegendScanProgress.AutoSize = true;
+            this.m_LegendScanProgress.Location = new System.Drawing.Point(7, 202);
+            this.m_LegendScanProgress.Name = "m_LegendScanProgress";
+            this.m_LegendScanProgress.Size = new System.Drawing.Size(79, 13);
+            this.m_LegendScanProgress.TabIndex = 4;
+            this.m_LegendScanProgress.Text = "Scan Progress:";
+            this.m_LegendScanProgress.Visible = false;
+            // 
             // FormSelectTarget
             // 
             this.AcceptButton = this.m_BtnOK;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.CancelButton = this.m_Cancel;
             this.ClientSize = new System.Drawing.Size(476, 232);
+            this.Controls.Add(this.m_LegendScanProgress);
+            this.Controls.Add(this.m_ProgressBarScan);
             this.Controls.Add(this.m_Cancel);
             this.Controls.Add(this.m_BtnOK);
             this.Controls.Add(this.m_PanelOuter);
@@ -134,6 +165,7 @@ namespace Bombardier.PTU.Forms
             this.m_PanelOuter.PerformLayout();
             this.m_GroupLogicList.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -145,5 +177,7 @@ namespace Bombardier.PTU.Forms
         private System.Windows.Forms.Button m_Cancel;
         private System.Windows.Forms.ListBox m_ListBoxAvailableLogicControllers;
         private System.Windows.Forms.TextBox m_TxtStatusInformation;
+        private System.Windows.Forms.ProgressBar m_ProgressBarScan;
+        private System.Windows.Forms.Label m_LegendScanProgress;
     }
 }

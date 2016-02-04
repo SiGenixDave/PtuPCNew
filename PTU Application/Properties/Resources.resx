@@ -233,7 +233,7 @@
     <value>..\Resources\Eventlog.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="LegendCopyright" xml:space="preserve">
-    <value>(C) 2010 - 2015  Bombardier Transportation (Holdings) USA Inc.</value>
+    <value>(C) 2010 - 2016  Bombardier Transportation (Holdings) USA Inc.</value>
   </data>
   <data name="MBTDiagnosticHelpNotFound" xml:space="preserve">
     <value>The diagnostic help file for the current project cannot be found.</value>
@@ -657,5 +657,8 @@
   </data>
   <data name="FTPErrorCodeXCopyNoFilesFound" xml:space="preserve">
     <value>XCopy Error - No Files Found.</value>
+  </data>
+  <data name="TextURI" xml:space="preserve">
+    <value>URI</value>
   </data>
 </root>
