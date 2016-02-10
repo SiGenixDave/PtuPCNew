@@ -966,6 +966,7 @@ namespace Common.Communication
             {
                 // Reset the current number of faults
                 m_CurrentNumberOfFaults = 0;
+                m_FaultStorage.Clear();
 
                 // temporarily disable Fault Logging
                 commError = EnableFaultLogging(false);
