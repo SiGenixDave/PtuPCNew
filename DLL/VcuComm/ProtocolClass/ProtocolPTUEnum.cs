@@ -124,5 +124,15 @@ namespace VcuComm
             INT_16_TYPE = 4,
             INT_32_TYPE = 5,
         }
+
+        /// <summary>
+        /// This enumeration indicates whether a variable returned from the embedded target
+        /// is a signed or unsigned value.
+        /// </summary>
+        public enum IntegerType
+        {
+            SIGNED = 1,
+            UNSIGNED = 2,
+        }
     }
 }

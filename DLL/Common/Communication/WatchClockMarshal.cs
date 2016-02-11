@@ -406,8 +406,17 @@ namespace Common.Communication
                         newValue = Utils.ReverseByteOrder(newValue);
                         dataType = Utils.ReverseByteOrder(dataType);
                     }
-                    WatchValues[index] = newValue;
                     DataType[index] = dataType;
+                    WatchValues[index] = newValue;
+
+                    // If the value is a signed value, convert the value to an Int32
+                    ProtocolPTU.IntegerType intType = (ProtocolPTU.IntegerType)dataType;
+                    if (intType == (ProtocolPTU.IntegerType.SIGNED))
+                    {
+                        WatchValues[index] = (Int32)newValue;
+                    }
+
+                    
                 }
             }
 
