@@ -26,6 +26,7 @@
 using System;
 using System.Text;
 using VcuComm;
+using System.Text.RegularExpressions;
 
 namespace Common.Communication
 {
@@ -158,11 +159,20 @@ namespace Common.Communication
 
             if (commError == CommunicationError.Success)
             {
+                Regex rgx = new Regex(@"[^\u0020-\u007F]");
                 // Map bytes in m_RxMessage to GetEmbeddedInfoRes
-                getEmbInfo.SoftwareVersion = Encoding.UTF8.GetString(m_RxMessage, 8, 41).Replace("\0", String.Empty);
-                getEmbInfo.CarID = Encoding.UTF8.GetString(m_RxMessage, 49, 11).Replace("\0", String.Empty);
-                getEmbInfo.SubSystemName = Encoding.UTF8.GetString(m_RxMessage, 60, 41).Replace("\0", String.Empty);
-                getEmbInfo.IdentifierString = Encoding.UTF8.GetString(m_RxMessage, 101, 4).Replace("\0", String.Empty);
+                getEmbInfo.SoftwareVersion = Encoding.UTF8.GetString(m_RxMessage, 8, 41);
+                getEmbInfo.SoftwareVersion = rgx.Replace(getEmbInfo.SoftwareVersion, String.Empty);
+
+                getEmbInfo.CarID = Encoding.UTF8.GetString(m_RxMessage, 49, 11);
+                getEmbInfo.CarID = rgx.Replace(getEmbInfo.CarID, String.Empty);
+
+                getEmbInfo.SubSystemName = Encoding.UTF8.GetString(m_RxMessage, 60, 41);
+                getEmbInfo.SubSystemName = rgx.Replace(getEmbInfo.SubSystemName, String.Empty);
+
+                getEmbInfo.IdentifierString = Encoding.UTF8.GetString(m_RxMessage, 101, 4);
+                getEmbInfo.IdentifierString = rgx.Replace(getEmbInfo.IdentifierString, String.Empty);
+
                 getEmbInfo.ConfigurationMask = BitConverter.ToUInt32(m_RxMessage, 106);
             }
 
