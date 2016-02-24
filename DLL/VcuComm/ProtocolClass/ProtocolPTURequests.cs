@@ -1459,6 +1459,7 @@ namespace VcuComm
 
             }
 
+
             /// <summary>
             /// Private 0 argument constructor that forces the instantiation of this class
             /// to use the public constructor
@@ -1492,7 +1493,7 @@ namespace VcuComm
 
                 bw.Write(this.CommandId);
                 bw.Write(0);
-                bw.Write(NumberOfTests);
+                bw.Write(this.NumberOfTests);
 
                 for (UInt16 i = 0; i < this.TestList.Length; i++)
                 {
