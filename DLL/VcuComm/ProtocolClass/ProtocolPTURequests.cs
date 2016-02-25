@@ -1187,7 +1187,7 @@ namespace VcuComm
                 if (this.fourDigitYear)
                 {
                     // Used to fill a word boundary
-                    bw.Write(0x00);
+                    bw.Write((Byte)0x00);
                     bw.Write(this.Year);
                 }
                 else
@@ -1492,7 +1492,7 @@ namespace VcuComm
                 BinaryWriter bw = new BinaryWriter(ms);
 
                 bw.Write(this.CommandId);
-                bw.Write(0);
+                bw.Write((Byte)0);
                 bw.Write(this.NumberOfTests);
 
                 for (UInt16 i = 0; i < this.TestList.Length; i++)
